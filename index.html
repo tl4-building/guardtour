@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <title>Guard Tour</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#1e3a5f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Guard Tour">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    :root { --navy:#1e3a5f; --green:#15803d; --red:#b91c1c; --amber:#92400e; --bg:#f1f5f9; --muted:#475569; --line:#e2e8f0; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; font-family:-apple-system, 'Sarabun', 'Noto Sans Thai', 'Leelawadee UI', Tahoma, sans-serif; background:var(--bg); color:#0f172a; font-size:16px; }
+    header { background:var(--navy); color:#fff; padding:10px 14px; }
+    .hw { max-width:520px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    header b { font-size:18px; } header small { display:block; color:#dbe4ee; font-size:12px; }
+    .ub { text-align:right; font-size:13px; color:#dbe4ee; }
+    .ub button { background:none; color:#dbe4ee; border:1px solid rgba(255,255,255,.3); border-radius:8px; padding:4px 10px; font:inherit; font-size:12px; margin-top:4px; }
+    .wrap { max-width:520px; margin:0 auto; padding:12px 12px 40px; }
+    .card { background:#fff; border-radius:14px; padding:14px; box-shadow:0 1px 2px rgba(0,0,0,.06); margin-bottom:10px; }
+    h2 { margin:0 0 6px; font-size:20px; } h3 { margin:0 0 6px; font-size:17px; }
+    label.f { display:block; font-weight:600; margin:12px 0 6px; font-size:15px; }
+    input, textarea { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:12px; font:inherit; font-size:17px; color:#0f172a; background:#fff; }
+    .btn { display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; padding:12px; border:0; border-radius:12px; font:inherit; font-size:17px; font-weight:700; cursor:pointer; margin-top:10px; }
+    .btn:disabled { opacity:.55; }
+    .pri { background:var(--navy); color:#fff; } .lt { background:#e2e8f0; color:#0f172a; } .dg { background:#fee2e2; color:var(--red); } .gr { background:var(--green); color:#fff; }
+    .row { display:flex; gap:10px; } .row .btn { flex:1; }
+    .mu { color:var(--muted); } .sm { font-size:13px; }
+    .hidden { display:none !important; }
+    .err { background:#fee2e2; color:var(--red); padding:12px; border-radius:12px; margin-top:10px; }
+    .inf { background:#e0e7ff; color:#1e3a8a; padding:12px; border-radius:12px; margin-top:10px; }
+    .pill { display:inline-block; padding:3px 10px; border-radius:999px; font-size:13px; font-weight:600; white-space:nowrap; }
+    .p0 { background:#e2e8f0; color:#334155; } .p1 { background:#e0e7ff; color:#3730a3; } .p2 { background:#dcfce7; color:#166534; } .p3 { background:#fef3c7; color:var(--amber); }
+    .rd { width:100%; text-align:left; border:2px solid transparent; font:inherit; color:inherit; display:block; }
+    .rd:disabled { opacity:.55; } .rd.now { border-color:var(--navy); }
+    .rh { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .rt { font-size:19px; font-weight:700; }
+    .bar { height:10px; border-radius:999px; background:var(--line); overflow:hidden; margin-top:10px; }
+    .bar > div { height:10px; background:var(--navy); }
+    .nid { font-size:15px; color:var(--muted); }
+    .nn { font-size:24px; font-weight:700; color:var(--navy); line-height:1.25; }
+    .li { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); }
+    #preview { width:100%; border-radius:12px; display:block; margin-top:10px; }
+    .cond { display:flex; gap:10px; }
+    .cond button { flex:1; min-height:54px; border:2px solid #cbd5e1; border-radius:12px; background:#fff; font:inherit; font-size:18px; font-weight:700; color:#334155; }
+    .cond .ok { border-color:var(--green); background:#dcfce7; color:var(--green); }
+    .cond .bad { border-color:var(--red); background:#fee2e2; color:var(--red); }
+    .modal { position:fixed; inset:0; background:rgba(15,23,42,.55); display:flex; align-items:flex-start; justify-content:center; z-index:20; padding:12px; overflow:auto; }
+    .sheet { background:#fff; width:100%; max-width:520px; border-radius:16px; padding:16px; }
+    .toast { position:fixed; left:50%; top:12px; transform:translateX(-50%); background:#0f172a; color:#fff; padding:12px 16px; border-radius:12px; z-index:30; font-weight:600; width:max-content; max-width:92%; text-align:center; }
+    .spin { text-align:center; padding:24px; color:var(--muted); }
+    .who { display:flex; gap:6px; background:#e2e8f0; padding:4px; border-radius:12px; margin-bottom:14px; }
+    .who a, .who span { flex:1; text-align:center; padding:10px 6px; border-radius:9px; font-weight:600; text-decoration:none; color:#334155; }
+    .who span { background:var(--navy); color:#fff; }
+    .mask { -webkit-text-security:disc; text-security:disc; }
+    /* กล้องในหน้าเว็บ (Android) */
+    .cam { position:fixed; inset:0; background:#000; z-index:25; display:flex; flex-direction:column; }
+    .cam video { flex:1; width:100%; min-height:0; object-fit:cover; background:#000; }
+    .camTop { position:absolute; left:0; right:0; top:0; padding:14px; color:#fff; font-size:18px; font-weight:700; text-align:center; background:linear-gradient(rgba(0,0,0,.65),transparent); }
+    .camTop small { display:block; font-size:14px; font-weight:400; opacity:.85; margin-top:2px; }
+    .camBox { position:absolute; left:50%; top:45%; width:68vmin; height:68vmin; transform:translate(-50%,-50%); border:3px solid #fff; border-radius:16px; box-shadow:0 0 0 2000px rgba(0,0,0,.35); pointer-events:none; }
+    .camBar { display:flex; gap:10px; padding:12px 14px calc(14px + env(safe-area-inset-bottom)); background:#000; align-items:center; }
+    .camBar .btn { margin:0; flex:1; }
+    .camShot { flex:0 0 74px !important; width:74px; height:74px; min-height:74px; border-radius:50%; background:#fff; border:5px solid #94a3b8; padding:0; }
+    .camErr { position:absolute; left:14px; right:14px; top:35%; background:#fff; border-radius:14px; padding:16px; text-align:center; }
+    .warnApp { background:#fef3c7; color:#92400e; padding:10px 12px; border-radius:12px; margin-bottom:10px; font-size:14px; }
+  </style>
+</head>
+<body>
+  <header><div class="hw">
+    <div><b>Guard Tour</b> <span style="font-size:11px;opacity:.7">v5.0</span><small class="siteNm"></small></div>
+    <div id="ub" class="ub hidden"><span id="uname"></span><br><button onclick="doLogout()">ออกจากระบบ</button></div>
+  </div></header>
+
+  <div class="wrap">
+    <div id="appWarn" class="warnApp hidden">เปิดผ่านแอป LINE / Facebook อยู่ กล้องอาจใช้ไม่ได้ · แนะนำกดปุ่ม ⋮ มุมขวาบน แล้วเลือก <b>"เปิดใน Chrome"</b> (หรือเบราว์เซอร์ของเครื่อง)</div>
+    <div id="vLoad" class="spin">กำลังโหลด...</div>
+
+    <div id="vLogin" class="card hidden">
+      <h2>ระบบตรวจตรา (Guard Tour)</h2>
+      <label class="f" for="inUser">รหัสพนักงาน</label>
+      <input id="inUser" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false">
+      <label class="f" for="inPin">PIN</label>
+      <input id="inPin" type="text" class="mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="numeric">
+      <button class="btn pri" id="btnLogin" onclick="doLogin()">เริ่มใช้งาน</button>
+      <div id="loginMsg"></div>
+      <div class="mu sm" style="margin-top:10px">ระบบภายในสำหรับพนักงานรักษาความปลอดภัย <b class="siteNm"></b> เท่านั้น · ใช้รหัสพนักงานและ PIN ที่ได้รับจากหัวหน้า · <b>ห้ามกรอกรหัสบัญชี Google อีเมล หรือบัญชีธนาคาร</b></div>
+    </div>
+
+    <div id="vChange" class="card hidden">
+      <h2>ตั้ง PIN ใหม่</h2>
+      <div class="mu sm" id="chHint">PIN ตัวเลข 6 หลัก (ห้ามเลขเรียง เช่น 123456 หรือเลขซ้ำ เช่น 111111)</div>
+      <label class="f" for="pOld">PIN ปัจจุบัน</label><input id="pOld" type="text" class="mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <label class="f" for="pNew">PIN ใหม่</label><input id="pNew" type="text" class="mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <label class="f" for="pNew2">ยืนยัน PIN ใหม่</label><input id="pNew2" type="text" class="mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <button class="btn pri" id="btnChange" onclick="doChange()">บันทึก</button>
+      <div id="changeMsg"></div>
+    </div>
+
+    <div id="vRounds" class="hidden">
+      <div class="card"><h2>เลือกรอบ</h2><div class="mu sm" id="shiftInfo"></div></div>
+      <div id="roundList"></div>
+    </div>
+
+    <div id="vRun" class="hidden">
+      <div class="card">
+        <div class="rh">
+          <div><div class="rt" id="runTitle"></div><div class="mu sm" id="runTime"></div></div>
+          <button class="btn lt" style="width:auto;min-height:40px;margin:0;padding:6px 14px;font-size:15px" onclick="loadRounds()">กลับ</button>
+        </div>
+        <div class="bar"><div id="runBar"></div></div>
+        <div class="sm mu" style="margin-top:6px" id="runProg"></div>
+        <div class="sm" style="margin-top:4px;color:#1e3a8a" id="qInfo"></div>
+      </div>
+      <div class="card" id="nextCard">
+        <div class="nid" id="nextId"></div>
+        <div class="nn" id="nextName"></div>
+        <div class="mu" id="nextFloor"></div>
+        <label class="btn pri" for="fileCap" onclick="camGo(event,'qr')">สแกน QR จุดนี้</label>
+        <button class="btn lt" onclick="askSkip()">ไปไม่ได้ · ข้ามจุดนี้</button>
+      </div>
+      <div class="card hidden" id="allDone"><h3>เดินครบตามลำดับแล้ว</h3><div class="mu" id="allDoneText"></div></div>
+      <div class="card hidden" id="skipCard"><h3>จุดที่ข้ามไว้</h3><div id="skipList"></div></div>
+      <div id="runMsg"></div>
+      <button class="btn dg" onclick="askFinish()">จบรอบ</button>
+    </div>
+
+    <div id="vPhoto" class="hidden">
+      <div class="card">
+        <div class="nid">QR ถูกต้อง ✓ ขั้นต่อไป ถ่ายรูปจุดตรวจ</div>
+        <div class="nn" id="phName"></div>
+        <label class="btn pri" for="fileCap" onclick="camGo(event,'photo')">ถ่ายรูปจุดตรวจ</label>
+        <button class="btn lt" onclick="backToRun()">ยกเลิก</button>
+      </div>
+      <div id="phMsg"></div>
+    </div>
+
+    <div id="vSave" class="hidden">
+      <div class="card">
+        <div class="nid" id="saveId"></div>
+        <div class="nn" id="saveName"></div>
+        <img id="preview" alt="รูปจุดตรวจ">
+        <label class="btn lt" for="fileCap" onclick="camGo(event,'photo')">ถ่ายใหม่</label>
+      </div>
+      <div class="card">
+        <div class="cond">
+          <button id="cOk" class="ok" onclick="setCond('ปกติ')">ปกติ</button>
+          <button id="cBad" onclick="setCond('ผิดปกติ')">ผิดปกติ</button>
+        </div>
+        <label class="f" for="inNote" id="noteLabel">หมายเหตุ (ถ้ามี)</label>
+        <textarea id="inNote" rows="2"></textarea>
+        <div id="saveMsg"></div>
+        <button class="btn pri" id="btnSave" onclick="doSave()">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="fileCap" accept="image/*" capture="environment" class="hidden" onchange="onFile(this)">
+  <div class="cam hidden" id="cam">
+    <video id="camV" playsinline muted autoplay></video>
+    <div class="camBox hidden" id="camBox"></div>
+    <div class="camTop"><span id="camTitle"></span><small id="camSub"></small></div>
+    <div class="camErr hidden" id="camErr">
+      <div id="camErrT" style="margin-bottom:10px"></div>
+      <label class="btn pri" for="fileCap" onclick="camClose()">ใช้กล้องของเครื่องแทน</label>
+      <button class="btn lt" onclick="camClose()">ปิด</button>
+    </div>
+    <div class="camBar">
+      <button class="btn lt" onclick="camClose()">ยกเลิก</button>
+      <button class="btn camShot hidden" id="camShot" onclick="camShot()" aria-label="ถ่ายรูป"></button>
+      <button class="btn lt hidden" id="camTorch" onclick="camTorch()">💡 ไฟฉาย</button>
+    </div>
+  </div>
+  <div class="modal hidden" id="modal"><div class="sheet" id="sheet"></div></div>
+  <div class="toast hidden" id="toast"></div>
+  <canvas id="work" class="hidden"></canvas>
+
+<script src="config.js"></script>
+<script>
+  const CP_URL = (new URLSearchParams(location.search).get('cp') || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 20);
+  function setSite(n) { if (n) document.querySelectorAll('.siteNm').forEach(e => e.textContent = n); }
+  setSite((window.GT_CONFIG || {}).SITE_NAME);
+  const KEY = 'gt3', PHOTO_MAX = 480, PHOTO_Q = 0.6;
+  let S = load(), offset = 0, st = null, mode = '', cp = null, photo = '', cond = 'ปกติ', geo = null;
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  function load() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  const VIEWS = ['vLoad', 'vLogin', 'vChange', 'vRounds', 'vRun', 'vPhoto', 'vSave'];
+  function show(v) { VIEWS.forEach(x => $(x).classList.toggle('hidden', x !== v)); window.scrollTo(0, 0); }
+  function msg(id, t, cls) { $(id).innerHTML = t ? '<div class="' + (cls || 'err') + '">' + esc(t) + '</div>' : ''; }
+  function toast(t) { const e = $('toast'); e.textContent = t; e.classList.remove('hidden'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.add('hidden'), 2500); }
+  function busy(b, on, t) { if (!b) return; b.disabled = on; if (on) { b.dataset.t = b.textContent; b.textContent = t; } else if (b.dataset.t) b.textContent = b.dataset.t; }
+  function openModal(h) { $('sheet').innerHTML = h; $('modal').classList.remove('hidden'); }
+  function closeModal() { $('modal').classList.add('hidden'); }
+  $('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+  // เรียกระบบหลังบ้าน (Apps Script) ผ่านอินเทอร์เน็ต
+  async function api(fn, args, ms) {
+    const url = (window.GT_CONFIG || {}).API_URL || '';
+    if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(url)) throw new Error('ยังไม่ได้ตั้งค่าลิงก์ระบบหลังบ้าน (API_URL ในไฟล์ config.js)');
+    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms || 90000);
+    let res;
+    try { res = await fetch(url, { method: 'POST', body: JSON.stringify({ fn: fn, args: args }), signal: ctl.signal, redirect: 'follow', credentials: 'omit' }); }
+    catch (e) { throw new Error(e && e.name === 'AbortError' ? 'timeout: ระบบตอบช้า ลองใหม่อีกครั้ง' : 'network: สัญญาณอินเทอร์เน็ตขัดข้อง ลองใหม่อีกครั้ง'); }
+    finally { clearTimeout(tm); }
+    if (!res.ok) throw new Error('http ' + res.status + ': ระบบขัดข้องชั่วคราว ลองใหม่อีกครั้ง');
+    let j;
+    try { j = await res.json(); } catch (e) { throw new Error('network: ได้ข้อมูลไม่ครบ ลองใหม่อีกครั้ง'); }
+    if (!j.ok) throw new Error(j.err || 'เกิดข้อผิดพลาด');
+    return j.r;
+  }
+  async function call(fn, ...a) {
+    try { return await api(fn, a, fn === 'submitScan' ? 120000 : 90000); }
+    catch (e) {
+      const m = (e && e.message) || String(e);
+      if (m.includes('SESSION:')) { relogin(m.split('SESSION:')[1]); throw new Error(''); }
+      if (m.includes('MUSTCHANGE:')) { showChange(); throw new Error(''); }
+      if (m.includes('CLOSED:')) { S.run = null; save(); toast(m.split('CLOSED:')[1]); loadRounds(); throw new Error(''); }
+      throw new Error(m.replace(/^Exception:\s*/, ''));
+    }
+  }
+
+  /* ---------- เข้าสู่ระบบ ---------- */
+  async function init() {
+    if (!S.token) { show('vLogin'); api('getSiteInfo', []).then(r => setSite(r.siteName)).catch(() => {}); return; }
+    try { applyBoot(await call('boot', S.token, S.run || null)); }
+    catch (e) { if (e.message) { show('vLogin'); msg('loginMsg', e.message); } }
+  }
+  function applyBoot(r) {
+    S.user = r.user; save(); offset = r.serverTime - Date.now(); setSite(r.siteName);
+    $('uname').textContent = r.user.name + ' · ' + r.user.roleTh; $('ub').classList.remove('hidden');
+    if (r.user.mustChange) return showChange();
+    if (r.state) { st = r.state; Q.filter(q => q.shiftDate === st.shiftDate && q.roundNo === st.roundNo).forEach(q => advance(q.cpId)); renderRun(st); pump(); if (CP_URL) gotCode(CP_URL); return; }
+    if (r.runClosed) { S.run = null; save(); }
+    renderRounds(r.rounds); pump();
+    if (CP_URL) toast('กรุณาเลือกรอบก่อนสแกน');
+  }
+  async function doLogin() {
+    const b = $('btnLogin'); msg('loginMsg', ''); busy(b, true, 'กำลังตรวจสอบ...');
+    try {
+      const r = await call('login', $('inUser').value, $('inPin').value, 'mobile');
+      if (!r.ok) { busy(b, false); return msg('loginMsg', r.msg); }
+      S = { token: r.token, run: null }; save();
+      $('pOld').value = $('inPin').value; $('inPin').value = '';
+      applyBoot(await call('boot', S.token, null)); busy(b, false);
+    } catch (e) { busy(b, false); if (e.message) msg('loginMsg', e.message); }
+  }
+  function showChange() {
+    if (S.user && S.user.role !== 'GUARD') $('chHint').textContent = 'รหัสอย่างน้อย 8 ตัว มีทั้งตัวอักษรและตัวเลข';
+    else ['pOld', 'pNew', 'pNew2'].forEach(x => $(x).setAttribute('inputmode', 'numeric'));
+    show('vChange');
+  }
+  async function doChange() {
+    if ($('pNew').value.trim() !== $('pNew2').value.trim()) return msg('changeMsg', 'รหัสใหม่ทั้งสองช่องไม่ตรงกัน');
+    const b = $('btnChange'); busy(b, true, 'กำลังบันทึก...');
+    try {
+      const r = await call('changePin', S.token, $('pOld').value, $('pNew').value.trim());
+      if (!r.ok) { busy(b, false); return msg('changeMsg', r.msg); }
+      ['pOld', 'pNew', 'pNew2'].forEach(x => $(x).value = '');
+      applyBoot(await call('boot', S.token, null)); busy(b, false); toast('ตั้งรหัสใหม่แล้ว');
+    } catch (e) { busy(b, false); if (e.message) msg('changeMsg', e.message); }
+  }
+  function relogin(t) { S = {}; save(); $('ub').classList.add('hidden'); closeModal(); show('vLogin'); msg('loginMsg', t || ''); }
+  function doLogout() {
+    if (Q.length) return openModal('<h3>ยังส่งข้อมูลไม่ครบ</h3><p class="mu">เหลือ ' + Q.length + ' รายการ รอให้ส่งเสร็จก่อนออกจากระบบ</p><button class="btn pri" onclick="closeModal()">ตกลง</button>');
+    openModal('<h3>ออกจากระบบ?</h3><div class="row"><button class="btn lt" onclick="closeModal()">ยกเลิก</button><button class="btn dg" onclick="logoutNow()">ออกจากระบบ</button></div>');
+  }
+  function logoutNow() { const t = S.token; relogin(''); call('logout', t).catch(() => {}); }
+
+  /* ---------- รอบ ---------- */
+  async function loadRounds() {
+    show('vLoad');
+    try { renderRounds(await call('getRoundList', S.token)); }
+    catch (e) { if (e.message) { show('vRounds'); $('roundList').innerHTML = '<div class="err">' + esc(e.message) + '</div>'; } }
+  }
+  function renderRounds(r) {
+    offset = r.serverTime - Date.now();
+    show('vRounds');
+    $('shiftInfo').textContent = 'วันทำงาน ' + r.shiftDateTh + ' · ' + r.total + ' จุด';
+    const TS = { upcoming: ['ยังไม่ถึงเวลา', 'p0'], now: ['ถึงเวลาแล้ว', 'p2'], grace: ['ผ่อนผันถึง ', 'p2'], over: ['เลยเวลา', 'p3'] };
+    $('roundList').innerHTML = r.rounds.map(x => {
+      const closed = x.status === 'CLOSED' || x.status === 'AUTO_CLOSED';
+      const st = closed ? '<span class="pill p0">ปิดแล้ว</span>' : x.status === 'IN_PROGRESS' ? '<span class="pill p1">กำลังตรวจ ' + x.done + '/' + r.total + '</span>' : '';
+      const t = TS[x.timeState];
+      return '<button class="card rd' + (x.timeState === 'now' && !closed ? ' now' : '') + '"' + (closed ? ' disabled' : '') + ' onclick="pickRound(' + x.no + ')">' +
+        '<div class="rh"><div><div class="rt">รอบ ' + (x.label || x.no) + '</div><div class="mu">' + esc(x.start) + '–' + esc(x.end) + ' น.</div></div>' + st + '</div>' +
+        (closed ? '' : '<div style="margin-top:6px"><span class="pill ' + t[1] + '">' + t[0] + (x.timeState === 'grace' ? esc(x.due) : '') + '</span></div>') + '</button>';
+    }).join('');
+  }
+  async function pickRound(no, reason) {
+    show('vLoad');
+    try {
+      const r = await call('startRound', S.token, no, reason || '');
+      if (!r.ok && r.needReason) { loadRounds(); return askReason(no, r.msg); }
+      if (!r.ok) { toast(r.msg); return loadRounds(); }
+      closeModal();
+      S.run = { sd: r.shiftDate, no: r.roundNo }; save();
+      renderRun(await call('getRunState', S.token, r.shiftDate, r.roundNo));
+    } catch (e) { if (e.message) { toast(e.message); loadRounds(); } }
+  }
+  function askReason(no, text) {
+    openModal('<h3>นอกเวลารอบ</h3><div class="mu sm">' + esc(text) + '</div>' +
+      '<label class="f" for="mR">มีเหตุอะไร</label><textarea id="mR" rows="2" oninput="msg(\'mM\',\'\')"></textarea><div id="mM"></div>' +
+      '<div class="row"><button class="btn lt" onclick="closeModal()">ยกเลิก</button><button class="btn pri" onclick="sendReason(' + no + ')">เริ่มรอบ</button></div>');
+  }
+  function sendReason(no) { const v = $('mR').value.trim(); if (!v) return msg('mM', 'กรุณากรอกเหตุผล'); closeModal(); pickRound(no, v); }
+
+  /* ---------- ระหว่างรอบ ---------- */
+  function renderRun(s) {
+    st = s; if (s.serverTime) { offset = s.serverTime - Date.now(); s.serverTime = 0; }
+    show('vRun'); msg('runMsg', ''); updQ();
+    $('runTitle').textContent = 'รอบ ' + (s.roundLabel || s.roundNo);
+    $('runTime').textContent = s.start + '–' + s.end + ' · ตรงเวลาถึง ' + s.due;
+    $('runBar').style.width = Math.round(s.done / s.total * 100) + '%';
+    $('runProg').textContent = 'สแกนแล้ว ' + s.done + '/' + s.total + (s.skipped.length ? ' · ข้าม ' + s.skipped.length : '');
+    $('nextCard').classList.toggle('hidden', !s.next);
+    if (s.next) {
+      $('nextId').textContent = 'จุดถัดไป ' + s.next.seq + '/' + s.total + ' · ' + s.next.id;
+      $('nextName').textContent = s.next.name; $('nextFloor').textContent = s.next.floor || '';
+    }
+    $('allDone').classList.toggle('hidden', !!s.next);
+    $('allDoneText').textContent = s.skipped.length ? 'สแกนจุดที่ข้ามไว้ได้เลย หรือกด "จบรอบ"' : 'ครบทุกจุดแล้ว กด "จบรอบ"';
+    $('skipCard').classList.toggle('hidden', !s.skipped.length);
+    $('skipList').innerHTML = s.skipped.map(k => '<div class="li"><div><b>' + esc(k.id) + ' ' + esc(k.name) + '</b><div class="sm mu">' + esc(k.reason) + '</div></div>' +
+      (s.next ? '' : '<label class="btn pri" for="fileCap" onclick="camGo(event,\'qr\')" style="width:auto;min-height:44px;margin:0;padding:6px 14px">สแกน</label>') + '</div>').join('');
+  }
+  function backToRun() { if (st) renderRun(st); else loadRounds(); }
+
+  function askSkip() {
+    openModal('<h3>ข้าม ' + esc(st.next.id) + ' ' + esc(st.next.name) + '</h3><div class="mu sm">ถ้าไม่กลับมาสแกนก่อนจบรอบ จะนับเป็น "ขาด"</div>' +
+      '<label class="f" for="mR">เหตุผล</label><textarea id="mR" rows="2" oninput="msg(\'mM\',\'\')"></textarea><div id="mM"></div>' +
+      '<div class="row"><button class="btn lt" onclick="closeModal()">ยกเลิก</button><button class="btn pri" id="mB" onclick="doSkip()">ข้าม</button></div>');
+  }
+  async function doSkip() {
+    const v = $('mR').value.trim(); if (!v) return msg('mM', 'กรุณากรอกเหตุผล');
+    busy($('mB'), true, 'กำลังส่งข้อมูล...');
+    await drain();
+    try {
+      const r = await call('skipPoint', S.token, st.shiftDate, st.roundNo, st.next.id, v);
+      if (!r.ok) { busy($('mB'), false); return msg('mM', r.msg); }
+      closeModal(); renderRun(r);
+    } catch (e) { busy($('mB'), false); if (e.message) msg('mM', e.message); }
+  }
+
+  async function askFinish() {
+    openModal('<div class="spin">กำลังส่งข้อมูลและสรุป...</div>');
+    await drain();
+    try {
+      st = await call('getRunState', S.token, st.shiftDate, st.roundNo);
+      const miss = st.total - st.done;
+      $('sheet').innerHTML = '<h3>สรุปรอบ ' + (st.roundLabel || st.roundNo) + '</h3><p>สแกนแล้ว <b>' + st.done + '</b> · ยังไม่สแกน <b style="color:var(--red)">' + miss + '</b></p>' +
+        (miss ? '<div class="err">ถ้ายืนยัน จุดที่ยังไม่สแกนจะนับเป็น "ขาด" และรอบนี้จะถูกล็อก</div>' : '<div class="inf">ครบทุกจุดแล้ว</div>') +
+        '<div id="mM"></div><div class="row"><button class="btn lt" onclick="closeModal();renderRun(st)">แก้ไขข้อมูล</button><button class="btn ' + (miss ? 'dg' : 'gr') + '" id="mB" onclick="doFinish()">ยืนยันข้อมูล</button></div>';
+    } catch (e) { closeModal(); if (e.message) toast(e.message); }
+  }
+  async function doFinish() {
+    busy($('mB'), true, 'กำลังปิดรอบ...');
+    try {
+      const r = await call('closeRound', S.token, st.shiftDate, st.roundNo);
+      closeModal(); S.run = null; st = null; save();
+      toast('ปิดรอบ ' + (r.roundLabel || r.roundNo) + ' · ตรง ' + r.result.onTime + ' · ช้า ' + r.result.late + ' · ขาด ' + r.result.missed);
+      loadRounds();
+    } catch (e) { busy($('mB'), false); if (e.message) msg('mM', e.message); }
+  }
+
+  /* ---------- กล้องของมือถือ: QR และรูปจุดตรวจ ---------- */
+  function setMode(m) { mode = m; if (m === 'photo') getGeo(); if (m === 'qr') loadJsQR(); }
+
+  // เปิดกล้องในหน้าเว็บเลย (ทั้ง Android และ iPhone) ถ้าเปิดไม่ได้ จะมีปุ่มใช้กล้องของเครื่องแทน
+  let camStream = null, camTimer = 0, camN = 0, camLive = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia), torchOn = false;
+  if (/Line\/|FBAN|FBAV|FB_IAB|Instagram|MicroMessenger/i.test(navigator.userAgent)) document.addEventListener('DOMContentLoaded', () => $('appWarn').classList.remove('hidden'));
+  function camGo(ev, m) {
+    setMode(m);
+    if (!camLive) return;            // ปล่อยให้ปุ่มเปิดกล้องของเครื่องตามปกติ
+    ev.preventDefault();
+    camOpen(m);
+  }
+  async function camOpen(m) {
+    const qr = m === 'qr';
+    $('camTitle').textContent = qr ? 'เล็ง QR ให้อยู่ในกรอบ' : 'ถ่ายรูปจุดตรวจ';
+    $('camSub').textContent = qr ? 'ระบบจะอ่านให้อัตโนมัติ' : (cp ? cp.id + ' ' + cp.name : '');
+    $('camBox').classList.toggle('hidden', !qr); $('camShot').classList.toggle('hidden', qr);
+    $('camTorch').classList.add('hidden'); $('camErr').classList.add('hidden');
+    $('cam').classList.remove('hidden');
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 960 } } });
+    } catch (e) {
+      return camFail(e && e.name === 'NotAllowedError'
+        ? 'ยังไม่ได้อนุญาตให้ใช้กล้อง กดรูปแม่กุญแจ/การตั้งค่าเว็บไซต์ในเบราว์เซอร์ แล้วอนุญาต "กล้อง" หรือใช้กล้องของเครื่องแทน'
+        : 'เปิดกล้องในหน้าเว็บไม่ได้ ใช้กล้องของเครื่องแทน');
+    }
+    if ($('cam').classList.contains('hidden')) return camClose();   // กดยกเลิกระหว่างรอ
+    const v = $('camV'); v.srcObject = camStream;
+    try { await v.play(); } catch (e) { }
+    try { const t = camStream.getVideoTracks()[0], cap = t.getCapabilities ? t.getCapabilities() : {}; if (cap.torch) $('camTorch').classList.remove('hidden'); } catch (e) { }
+    torchOn = false;
+    if (qr) {
+      try { await loadJsQR(); } catch (e) { return camFail('โหลดตัวอ่าน QR ไม่ได้ ตรวจสัญญาณอินเทอร์เน็ตแล้วลองใหม่'); }
+      camN = 0; camScan();
+    }
+  }
+  function camFail(t) {
+    if (camStream) camStream.getTracks().forEach(k => k.stop());
+    camStream = null;
+    $('camErrT').textContent = t; $('camErr').classList.remove('hidden');
+    $('camBox').classList.add('hidden'); $('camShot').classList.add('hidden');
+  }
+  function camScan() {
+    if (!camStream) return;
+    const v = $('camV');
+    if (v.readyState >= 2 && v.videoWidth) {
+      const W = v.videoWidth, H = v.videoHeight, side = Math.min(W, H) * (camN % 4 === 3 ? 1 : 0.75);
+      const n = Math.round(Math.min(side, 640)), c = $('work'), x = c.getContext('2d', { willReadFrequently: true });
+      c.width = n; c.height = n;
+      x.drawImage(v, (W - side) / 2, (H - side) / 2, side, side, 0, 0, n, n);
+      const d = x.getImageData(0, 0, n, n);
+      if (camN % 3 === 2) boostGray(d.data);           // ที่มืด: ปรับภาพช่วยอ่าน
+      camN++;
+      const q = jsQR(d.data, n, n, { inversionAttempts: camN % 2 ? 'dontInvert' : 'attemptBoth' });
+      if (q && q.data) { try { navigator.vibrate && navigator.vibrate(60); } catch (e) { } camClose(); return gotCode(q.data); }
+    }
+    camTimer = setTimeout(camScan, 120);
+  }
+  function camShot() {
+    const v = $('camV');
+    if (!camStream || !v.videoWidth) return;
+    const c = document.createElement('canvas');
+    c.width = v.videoWidth; c.height = v.videoHeight;
+    c.getContext('2d').drawImage(v, 0, 0);
+    camClose();
+    stamp(c);
+  }
+  async function camTorch() {
+    try { torchOn = !torchOn; await camStream.getVideoTracks()[0].applyConstraints({ advanced: [{ torch: torchOn }] }); } catch (e) { torchOn = false; }
+    $('camTorch').textContent = torchOn ? '💡 ปิดไฟ' : '💡 ไฟฉาย';
+  }
+  function camClose() {
+    clearTimeout(camTimer);
+    if (camStream) camStream.getTracks().forEach(k => k.stop());
+    camStream = null;
+    const v = $('camV'); v.srcObject = null;
+    $('cam').classList.add('hidden');
+  }
+
+  function onFile(input) {
+    const f = input.files && input.files[0]; input.value = '';
+    if (!f) return;
+    if (mode === 'qr') return readQrFile(f);
+    if (Math.abs(Date.now() - f.lastModified) > 120000) return msg($('vSave').classList.contains('hidden') ? 'phMsg' : 'saveMsg', 'รับเฉพาะรูปที่เพิ่งถ่าย ห้ามเลือกรูปจากอัลบั้ม');
+    const img = new Image();
+    img.onload = () => { stamp(img); URL.revokeObjectURL(img.src); };
+    img.src = URL.createObjectURL(f);
+  }
+
+  // โหลดตัวอ่าน QR เฉพาะตอนจะใช้ครั้งแรก
+  let jsqrP = null;
+  function loadJsQR() {
+    if (window.jsQR) return Promise.resolve();
+    if (!jsqrP) jsqrP = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'; s.onload = ok; s.onerror = () => { jsqrP = null; no(); }; document.head.appendChild(s); });
+    return jsqrP;
+  }
+
+  function readQrFile(f) {
+    msg('runMsg', 'กำลังอ่าน QR...', 'inf');
+    const img = new Image();
+    img.onload = async () => {
+      URL.revokeObjectURL(img.src);
+      try { await loadJsQR(); } catch (e) { return msg('runMsg', 'โหลดตัวอ่าน QR ไม่ได้ ตรวจสัญญาณอินเทอร์เน็ตแล้วลองใหม่'); }
+      const W = img.naturalWidth, H = img.naturalHeight, c = $('work'), x = c.getContext('2d', { willReadFrequently: true });
+      let text = '';
+      // ลองหลายแบบ: ทั้งภาพ / ตัดกลางภาพ หลายขนาด (รูปจาก iPhone ใหญ่มาก)
+      // รอบแรกใช้ภาพปกติ ถ้าอ่านไม่ได้ รอบสองปรับภาพให้สว่างและคมขึ้น (ช่วยในที่มืด)
+      const tries = [[1, 800], [0.6, 800], [0.4, 600], [1, 1200], [0.75, 1000], [0.3, 500], [0.5, 1000], [1, 600], [0.6, 1400], [0.25, 400]];
+      const boosted = [[1, 800], [0.6, 800], [0.4, 600], [0.75, 1000], [0.5, 1000], [0.3, 500]];
+      for (const [list, enhance] of [[tries, false], [boosted, true]]) {
+        for (const [crop, max] of list) {
+          const cw = W * crop, ch = H * crop, sc = Math.min(1, max / Math.max(cw, ch)), w = Math.round(cw * sc), h = Math.round(ch * sc);
+          c.width = w; c.height = h;
+          x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+          x.drawImage(img, (W - cw) / 2, (H - ch) / 2, cw, ch, 0, 0, w, h);
+          const d = x.getImageData(0, 0, w, h);
+          if (enhance) boostGray(d.data);
+          const q = jsQR(d.data, w, h, { inversionAttempts: 'attemptBoth' });
+          if (q && q.data) { text = q.data; break; }
+        }
+        if (text) break;
+      }
+      if (!text) return msg('runMsg', 'อ่าน QR ไม่ได้ ถ่ายใหม่ใกล้ขึ้น ให้ QR ใหญ่ประมาณครึ่งจอ อยู่กลางภาพ และไม่สะท้อนแสง (รูป ' + W + '×' + H + ')');
+      gotCode(text);
+    };
+    img.src = URL.createObjectURL(f);
+  }
+
+  /* ---------- ปรับภาพในที่มืด ---------- */
+  // หาค่าความสว่างต่ำสุด/สูงสุดจริงของภาพ (ตัดจุดรบกวน 1%) และค่าเฉลี่ย
+  function lumStats(px) {
+    const hist = new Uint32Array(256); let sum = 0, n = 0;
+    for (let i = 0; i < px.length; i += 4) { const l = (px[i] * 299 + px[i + 1] * 587 + px[i + 2] * 114) / 1000 | 0; hist[l]++; sum += l; n++; }
+    let lo = 0, hi = 255, acc = 0;
+    for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= n * 0.01) { lo = v; break; } }
+    acc = 0;
+    for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc >= n * 0.01) { hi = v; break; } }
+    return { lo: lo, hi: Math.max(hi, lo + 16), mean: sum / n };
+  }
+  // ตาราง: ยืดช่วงความสว่างให้เต็ม 0–255 และยกเงามืดขึ้นด้วย gamma
+  function levelsLut(st, gamma) {
+    const lut = new Uint8ClampedArray(256), r = st.hi - st.lo;
+    for (let v = 0; v < 256; v++) lut[v] = 255 * Math.pow(Math.min(1, Math.max(0, (v - st.lo) / r)), gamma);
+    return lut;
+  }
+  // สำหรับอ่าน QR: แปลงเป็นขาวดำ เพิ่มความต่างสี และทำให้สว่างขึ้น
+  function boostGray(px) {
+    const st = lumStats(px);
+    const lut = levelsLut(st, st.mean < 90 ? 0.6 : 0.85);
+    for (let i = 0; i < px.length; i += 4) {
+      const g = lut[(px[i] * 299 + px[i + 1] * 587 + px[i + 2] * 114) / 1000 | 0];
+      px[i] = px[i + 1] = px[i + 2] = g;
+    }
+  }
+  // สำหรับรูปจุดตรวจ: ถ้าภาพมืด ทำให้สว่างขึ้นโดยคงสีเดิม
+  function brightenIfDark(x, w, h) {
+    const d = x.getImageData(0, 0, w, h), st = lumStats(d.data);
+    if (st.mean >= 95) return false;
+    const gamma = Math.max(0.45, Math.min(0.9, Math.log(0.45) / Math.log(Math.max(0.05, (st.mean - st.lo) / (st.hi - st.lo)))));
+    const lut = levelsLut(st, gamma), px = d.data;
+    for (let i = 0; i < px.length; i += 4) { px[i] = lut[px[i]]; px[i + 1] = lut[px[i + 1]]; px[i + 2] = lut[px[i + 2]]; }
+    x.putImageData(d, 0, 0);
+    return true;
+  }
+
+  // ตรวจลำดับในเครื่องทันที (เซิร์ฟเวอร์ตรวจซ้ำตอนบันทึก)
+  function gotCode(text) {
+    const m = String(text).match(/[?&]cp=([A-Za-z0-9_-]+)/) || String(text).trim().match(/^([A-Za-z0-9_-]{2,20})$/);
+    if (!m) return msg('runMsg', 'QR นี้ไม่ใช่ของระบบ Guard Tour');
+    const id = m[1].toUpperCase();
+    if (!st) return toast('กรุณาเลือกรอบก่อน');
+    const target = st.next ? (st.next.id === id ? st.next : null) : st.skipped.find(k => k.id === id);
+    if (!target) {
+      const want = st.next ? st.next.id + ' ' + st.next.name : 'จุดที่ข้ามไว้';
+      renderRun(st);
+      return msg('runMsg', 'QR ผิดจุด (' + id + ') จุดที่ต้องสแกนตอนนี้คือ ' + want + ' กรุณาสแกนใหม่');
+    }
+    cp = target; msg('runMsg', ''); msg('phMsg', '');
+    $('phName').textContent = cp.id + ' ' + cp.name;
+    show('vPhoto');
+  }
+
+  function getGeo() {
+    if (geo && Date.now() - geo.t < 60000) return;
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(p => { geo = { lat: p.coords.latitude.toFixed(6), lng: p.coords.longitude.toFixed(6), t: Date.now() }; }, () => {}, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+  }
+
+  function stamp(img) {
+    const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height, sc = Math.min(1, PHOTO_MAX / Math.max(W, H));
+    const w = Math.round(W * sc), h = Math.round(H * sc), c = $('work'), x = c.getContext('2d');
+    c.width = w; c.height = h; x.drawImage(img, 0, 0, w, h);
+    const lit = brightenIfDark(x, w, h);
+    const dt = new Date(Date.now() + offset).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    const fs = Math.max(12, Math.round(w / 32));
+    x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, h - fs * 2.9, w, fs * 2.9); x.fillStyle = '#fff';
+    x.font = 'bold ' + fs + 'px sans-serif'; x.fillText(cp.id + ' ' + cp.name + ' · รอบ ' + (st.roundLabel || st.roundNo), fs * .6, h - fs * 1.65, w - fs * 1.2);
+    x.font = fs + 'px sans-serif'; x.fillText(dt + ' · ' + S.user.name, fs * .6, h - fs * .45, w - fs * 1.2);
+    photo = c.toDataURL('image/jpeg', PHOTO_Q);
+    $('saveId').textContent = 'ลำดับ ' + cp.seq + ' · ' + cp.id; $('saveName').textContent = cp.name;
+    $('preview').src = photo; setCond('ปกติ'); $('inNote').value = ''; msg('saveMsg', lit ? 'ภาพมืด ระบบปรับให้สว่างขึ้นแล้ว' : '', 'inf');
+    show('vSave');
+  }
+
+  function setCond(c) {
+    cond = c;
+    $('cOk').className = c === 'ปกติ' ? 'ok' : ''; $('cBad').className = c === 'ผิดปกติ' ? 'bad' : '';
+    $('noteLabel').textContent = c === 'ผิดปกติ' ? 'รายละเอียดเหตุผิดปกติ (จำเป็น)' : 'หมายเหตุ (ถ้ามี)';
+  }
+
+  function doSave() {
+    if (document.activeElement) document.activeElement.blur();
+    const note = $('inNote').value.trim();
+    if (cond === 'ผิดปกติ' && !note) return msg('saveMsg', 'กรุณาระบุรายละเอียดเหตุผิดปกติ');
+    enqueue({ shiftDate: st.shiftDate, roundNo: st.roundNo, cpId: cp.id, cpName: cp.name, condition: cond, note: note, photo: photo, lat: geo ? geo.lat : '', lng: geo ? geo.lng : '' });
+    photo = '';
+    advance(cp.id);
+    toast('บันทึก ' + cp.id + ' แล้ว');
+    renderRun(st);
+  }
+
+  // ให้จุดถัดไปขึ้นทันที (คำนวณในเครื่อง)
+  function advance(id) {
+    if (!st.pending) return;
+    st.pending = st.pending.filter(p => p.id !== id);
+    st.done = st.total - st.pending.length;
+    st.next = st.pending.find(p => !p.skip) || null;
+    st.skipped = st.pending.filter(p => p.skip).map(p => ({ id: p.id, name: p.name, floor: p.floor, seq: p.seq, reason: p.skip }));
+  }
+
+  /* ---------- คิวส่งข้อมูลเบื้องหลัง (เก็บในเครื่อง ไม่หายแม้ปิดแอป) ---------- */
+  const QKEY = 'gt3q';
+  let Q = (() => { try { return JSON.parse(localStorage.getItem(QKEY) || '[]'); } catch (e) { return []; } })();
+  let qBusy = false, waiters = [];
+  function saveQ() { try { localStorage.setItem(QKEY, JSON.stringify(Q)); } catch (e) {} }
+  function updQ() { const n = Q.length; $('qInfo').textContent = n ? 'กำลังส่งข้อมูล ' + n + ' รายการ...' : ''; }
+  function enqueue(it) { Q.push(it); saveQ(); updQ(); pump(); }
+  function drain() { return new Promise(ok => { if (!Q.length && !qBusy) return ok(); waiters.push(ok); pump(); }); }
+  async function pump() {
+    if (qBusy || !S.token) return;
+    qBusy = true;
+    while (Q.length) {
+      const it = Q[0];
+      let r;
+      try { r = await call('submitScan', S.token, it); }
+      catch (e) {
+        qBusy = false; updQ();
+        if (!e.message) return;                                   // ต้องเข้าระบบใหม่ ส่งต่อหลังเข้าระบบ
+        if (/network|http|timed? ?out|connection|เครือข่าย/i.test(e.message)) { setTimeout(pump, 5000); return; }  // สัญญาณหลุด ลองใหม่
+        r = { ok: false, msg: e.message };
+        qBusy = true;
+      }
+      Q.shift(); saveQ(); updQ();
+      if (!r.ok) {
+        openModal('<h3>บันทึก ' + esc(it.cpId) + ' ไม่สำเร็จ</h3><div class="err">' + esc(r.msg) + '</div><p class="mu sm">กรุณาสแกนจุดนี้ใหม่</p><button class="btn pri" onclick="closeModal()">ตกลง</button>');
+        Q = Q.filter(x => !(x.shiftDate === it.shiftDate && x.roundNo === it.roundNo)); saveQ(); updQ();
+        if (st && st.shiftDate === it.shiftDate && st.roundNo === it.roundNo) {
+          try { st = await call('getRunState', S.token, it.shiftDate, it.roundNo); if (!$('vRun').classList.contains('hidden')) renderRun(st); } catch (e) {}
+        }
+      } else if (!Q.length && st && st.shiftDate === r.shiftDate && st.roundNo === r.roundNo) {
+        st = r; if (!$('vRun').classList.contains('hidden')) renderRun(st);
+      }
+    }
+    qBusy = false; updQ();
+    waiters.splice(0).forEach(f => f());
+  }
+
+  $('inPin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  init();
+</script>
+</body>
+</html>

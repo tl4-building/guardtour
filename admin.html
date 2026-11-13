@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <title>Guard Tour · ผู้ดูแล</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --navy:#1e3a5f; --green:#15803d; --red:#b91c1c; --amber:#92400e; --bg:#f1f5f9; --card:#fff; --muted:#475569; --line:#e2e8f0; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'Sarabun','Noto Sans Thai','Leelawadee UI',Tahoma,sans-serif; background:var(--bg); color:#0f172a; }
+    header { background:var(--navy); color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    header b { font-size:20px; } header small { display:block; color:#dbe4ee; }
+    .ubar { font-size:14px; color:#dbe4ee; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .ubar button { background:rgba(255,255,255,.15); color:#fff; border:0; border-radius:8px; padding:6px 12px; font-family:inherit; cursor:pointer; }
+    .wrap { max-width:1400px; margin:0 auto; padding:18px 20px 40px; }
+    .card { background:var(--card); border-radius:14px; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,.07); margin-bottom:14px; }
+    .login { max-width:400px; margin:40px auto; }
+    .mask { -webkit-text-security:disc; text-security:disc; }
+    .who { display:flex; gap:6px; background:#e2e8f0; padding:4px; border-radius:12px; margin-bottom:14px; }
+    .who a, .who span { flex:1; text-align:center; padding:10px 6px; border-radius:9px; font-weight:600; text-decoration:none; color:#334155; }
+    .who span { background:var(--navy); color:#fff; }
+    .mx th.rh { cursor:pointer; vertical-align:top; min-width:120px; }
+    .mx th.rh:hover { background:#eef2ff; }
+    .nm { display:block; font-size:12px; font-weight:400; color:#334155; }
+    .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#c2410c; margin-left:4px; vertical-align:1px; }
+    h2 { margin:0 0 8px; font-size:22px; } h3 { margin:0 0 8px; font-size:17px; }
+    label { font-size:14px; font-weight:600; display:block; margin:10px 0 4px; }
+    input, select, textarea { padding:9px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:15px; font-family:inherit; color:#0f172a; background:#fff; }
+    .full { width:100%; }
+    .btn { padding:9px 16px; border:0; border-radius:10px; font-size:15px; font-weight:600; font-family:inherit; cursor:pointer; background:var(--navy); color:#fff; }
+    .btn.light { background:#e2e8f0; color:#0f172a; } .btn.green { background:var(--green); } .btn.red { background:var(--red); }
+    .btn.sm { padding:5px 10px; font-size:13px; } .btn:disabled { opacity:.55; cursor:wait; }
+    .btn.big { width:100%; padding:13px; margin-top:14px; font-size:16px; }
+    .hidden { display:none !important; }
+    .err { padding:12px; border-radius:10px; margin-top:10px; background:#fee2e2; color:var(--red); }
+    .okbox { padding:12px; border-radius:10px; margin-top:10px; background:#dcfce7; color:#14532d; }
+    .warn { padding:12px; border-radius:10px; margin:10px 0; background:#fef3c7; color:var(--amber); }
+    .tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+    .tab { padding:9px 16px; border-radius:999px; border:0; background:#e2e8f0; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; color:#0f172a; }
+    .tab.on { background:var(--navy); color:#fff; }
+    .toolbar { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px; }
+    .toolbar label { margin:0 0 4px; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:14px; }
+    .stat { background:#fff; border-radius:14px; padding:14px 16px; box-shadow:0 1px 3px rgba(0,0,0,.07); }
+    .stat .n { font-size:30px; font-weight:700; line-height:1.1; } .stat .l { color:var(--muted); font-size:14px; }
+    .pill { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12.5px; font-weight:600; white-space:nowrap; }
+    .p-gray { background:#e2e8f0; color:#334155; } .p-blue { background:#e0e7ff; color:#3730a3; } .p-green { background:#dcfce7; color:#166534; }
+    .p-amber { background:#fef3c7; color:var(--amber); } .p-red { background:#fee2e2; color:var(--red); }
+    .scroll { overflow:auto; }
+    table { border-collapse:collapse; width:100%; font-size:14px; }
+    th, td { padding:7px 9px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:#f8fafc; white-space:nowrap; font-weight:600; }
+    .mx th, .mx td { border:1px solid var(--line); text-align:center; min-width:84px; }
+    .mx td.cp, .mx th.cp { text-align:left; min-width:200px; position:sticky; left:0; background:#fff; z-index:1; }
+    .mx th { position:sticky; top:0; z-index:2; }
+    .mx th.cp { z-index:3; background:#f8fafc; }
+    .mx td.c { cursor:pointer; }
+    .c-ok { background:#f0fdf4; color:#166534; } .c-late { background:#fef3c7; color:var(--amber); font-weight:600; }
+    .c-missed { background:#fee2e2; color:var(--red); font-weight:700; } .c-skip { background:#ffedd5; color:#9a3412; }
+    .c-wait { color:#64748b; } .c-none { color:#cbd5e1; }
+    .flag { font-size:11px; font-weight:700; display:block; }
+    .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--muted); margin-top:10px; }
+    .legend span i { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:4px; }
+    .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:14px; }
+    .muted { color:var(--muted); } .small { font-size:13px; }
+    .modal { position:fixed; inset:0; background:rgba(15,23,42,.5); display:flex; align-items:center; justify-content:center; z-index:20; padding:16px; }
+    .box { background:#fff; border-radius:16px; padding:20px; width:100%; max-width:520px; max-height:90vh; overflow:auto; }
+    .box img { max-width:100%; border-radius:10px; display:block; margin-top:8px; }
+    .qr-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px; }
+    .qr-card { border:1px dashed #94a3b8; border-radius:12px; padding:14px; text-align:center; background:#fff; }
+    .qr-card .qr { display:flex; justify-content:center; margin:10px auto; padding:18px; background:#fff; width:max-content; }
+    .qr-title { font-size:17px; font-weight:700; color:var(--navy); }
+    .rtab td { vertical-align:middle; } .rtab input[type=time] { width:130px; }
+    .rtab .rno { font-size:17px; font-weight:700; color:var(--navy); white-space:nowrap; }
+    @media print {
+      header, .tabs, .noprint, #pDash, #pReport, #pUsers, #pRounds, #pData { display:none !important; }
+      body { background:#fff; } .wrap { padding:0; } .card { box-shadow:none; padding:0; }
+      .qr-grid { grid-template-columns:repeat(3,1fr); } .qr-card { break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div><b>Guard Tour · ผู้ดูแล</b> <span style="font-size:11px;opacity:.7">v5.0</span><small class="siteNm"></small></div>
+    <div id="ubar" class="ubar hidden"><span id="uname"></span><button onclick="doLogout()">ออกจากระบบ</button></div>
+  </header>
+
+  <div class="wrap">
+    <div id="vLogin" class="card login hidden">
+      <h2>ระบบตรวจตรา (Guard Tour) · หัวหน้า / Admin</h2>
+      <label for="inUser">รหัสพนักงาน</label><input id="inUser" class="full" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <label for="inPw">PIN</label><input id="inPw" type="text" class="full mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <button class="btn big" id="btnLogin" onclick="doLogin()">เริ่มใช้งาน</button>
+      <div id="loginMsg"></div>
+      <p class="muted small" style="margin-top:12px">ระบบภายในสำหรับหัวหน้างานและผู้ดูแลระบบ <b class="siteNm"></b> · ใช้รหัสพนักงานและ PIN ที่ได้รับจากผู้ดูแล · <b>ห้ามกรอกรหัสบัญชี Google อีเมล หรือบัญชีธนาคาร</b></p>
+    </div>
+
+    <div id="vChange" class="card login hidden">
+      <h2>ตั้ง PIN ใหม่</h2>
+      <p class="muted small">เข้าใช้ครั้งแรกหรือถูกรีเซ็ตรหัส กรุณาตั้งรหัสของตัวเอง (อย่างน้อย 8 ตัว มีทั้งตัวอักษรและตัวเลข)</p>
+      <label for="pOld">PIN ปัจจุบัน</label><input id="pOld" type="text" class="full mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <label for="pNew">PIN ใหม่</label><input id="pNew" type="text" class="full mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <label for="pNew2">ยืนยัน PIN ใหม่</label><input id="pNew2" type="text" class="full mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <button class="btn big" id="btnChange" onclick="doChange()">บันทึก</button>
+      <div id="changeMsg"></div>
+    </div>
+
+    <div id="vApp" class="hidden">
+      <div class="tabs">
+        <button class="tab on" data-t="Dash" onclick="tab('Dash')">ภาพรวมรายวัน</button>
+        <button class="tab" data-t="Report" onclick="tab('Report')">รายงาน PDF / Excel</button>
+        <button class="tab admin" data-t="Users" onclick="tab('Users')">พนักงาน</button>
+        <button class="tab admin" data-t="Rounds" onclick="tab('Rounds')">รอบตรวจ</button>
+        <button class="tab admin" data-t="QR" onclick="tab('QR')">QR และพิกัด</button>
+        <button class="tab admin" data-t="Data" onclick="tab('Data')">จัดเก็บ / ลบข้อมูล</button>
+      </div>
+
+      <!-- ภาพรวม -->
+      <div id="pDash">
+        <div class="toolbar">
+          <div><label for="inDate">วันทำงาน</label><input type="date" id="inDate" onchange="loadDash()"></div>
+          <button class="btn light" onclick="shiftDay(-1)">◀ วันก่อน</button>
+          <button class="btn light" onclick="shiftDay(1)">วันถัดไป ▶</button>
+          <button class="btn light" onclick="loadDash()">รีเฟรช</button>
+          <span class="muted small" id="dashTime"></span>
+        </div>
+        <div id="dashMsg"></div>
+        <div class="stats">
+          <div class="stat"><div class="n" style="color:var(--green)" id="sOn">-</div><div class="l">ตรงเวลา (จุด)</div></div>
+          <div class="stat"><div class="n" style="color:var(--amber)" id="sLate">-</div><div class="l">ช้า (จุด)</div></div>
+          <div class="stat"><div class="n" style="color:var(--red)" id="sMiss">-</div><div class="l">ขาด (จุด)</div></div>
+          <div class="stat"><div class="n" id="sBad">-</div><div class="l">เหตุผิดปกติ</div></div>
+          <div class="stat"><div class="n" id="sOut">-</div><div class="l">นอกพื้นที่</div></div>
+          <div class="stat"><div class="n" id="sClosed">-</div><div class="l">รอบที่ปิดแล้ว</div></div>
+        </div>
+        <div class="card">
+          <h3>จุดตรวจ × รอบ <span class="muted small">(คลิกช่องเพื่อดูรูปและรายละเอียด)</span></h3>
+          <div class="scroll" style="max-height:70vh" id="matrix"></div>
+          <div class="legend">
+            <span><i class="c-ok" style="border:1px solid #bbf7d0"></i>ตรงเวลา</span>
+            <span><i class="c-late"></i>ช้า</span>
+            <span><i class="c-missed"></i>ขาด</span>
+            <span><i class="c-skip"></i>ข้ามไว้ (รอบยังไม่ปิด)</span>
+            <span><span class="dot"></span> นอกพื้นที่ (GPS)</span><span>กดหัวคอลัมน์รอบเพื่อดูรายละเอียดรอบ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- รายงาน -->
+      <div id="pReport" class="hidden">
+        <div class="card" style="max-width:760px">
+          <h3>เรียกดูรายงาน</h3>
+          <p class="muted small">เลือกวันเดียว หรือช่วงวันที่ได้สูงสุด 92 วัน · PDF ใช้พิมพ์/เซ็นรับรอง · Excel ใช้เก็บข้อมูลทั้งหมด (สำเนาทุกไฟล์เก็บไว้ในโฟลเดอร์ Guard Tour › รายงาน บน Drive)</p>
+          <div class="toolbar">
+            <div><label for="rFrom">ตั้งแต่วันที่</label><input type="date" id="rFrom"></div>
+            <div><label for="rTo">ถึงวันที่</label><input type="date" id="rTo"></div>
+          </div>
+          <div class="toolbar">
+            <button class="btn light" onclick="quick('today')">วันนี้</button>
+            <button class="btn light" onclick="quick('yday')">เมื่อวาน</button>
+            <button class="btn light" onclick="quick('month')">เดือนนี้</button>
+            <button class="btn light" onclick="quick('prev')">เดือนที่แล้ว</button>
+          </div>
+          <div class="toolbar">
+            <button class="btn" id="btnPdf" onclick="doExport('pdf')">ดาวน์โหลด PDF</button>
+            <button class="btn green" id="btnXlsx" onclick="doExport('xlsx')">ดาวน์โหลด Excel</button>
+          </div>
+          <div id="repMsg"></div>
+        </div>
+      </div>
+
+      <!-- รอบตรวจ -->
+      <div id="pRounds" class="hidden">
+        <div class="card">
+          <h3>รอบตรวจต่อวัน</h3>
+          <p class="muted small">เพิ่ม ลด หรือแก้เวลารอบได้ที่นี่ แล้วกด "บันทึกรอบตรวจ" · ระบบเรียงรอบตามเวลาให้เอง (นับจากเวลาเริ่มวันทำงาน <span id="rDayStart">06:00</span>) · รอบที่เพิ่มใหม่ ถ้าเวลาของวันนี้ผ่านไปแล้ว จะเริ่มนับตั้งแต่พรุ่งนี้ (วันนี้ไม่ถูกนับว่าขาด) · รอบที่ลบ ข้อมูลเก่ายังอยู่ในรายงาน (แสดงเป็น "รอบเดิม")</p>
+          <div class="toolbar">
+            <div><label for="rGrace">ผ่อนผันหลังหมดเวลารอบ (นาที)</label><input id="rGrace" type="number" min="0" max="180" size="6" oninput="renderRoundsAdmin(true)"></div>
+            <div class="muted small" style="padding-bottom:10px">เกินเวลานี้ การสแกนจะนับว่า "ช้า"</div>
+          </div>
+          <div class="scroll"><table class="rtab" id="roundTable"></table></div>
+          <div class="toolbar" style="margin-top:12px">
+            <button class="btn light" onclick="addRoundRow()">+ เพิ่มรอบ</button>
+            <button class="btn" id="btnRounds" onclick="saveRoundsAdmin()">บันทึกรอบตรวจ</button>
+            <button class="btn light" onclick="loadRoundsAdmin()">ยกเลิกการแก้ไข</button>
+          </div>
+          <div id="roundMsg"></div>
+          <div class="warn small" style="margin-top:12px">ข้อควรรู้: รายงานย้อนหลังจะแสดงเลขรอบและเวลาตามการตั้งค่าปัจจุบัน ถ้าเปลี่ยนรอบบ่อย แนะนำให้เปลี่ยนต้นเดือน หลัง Export รายงานเดือนก่อนแล้ว · รอบที่กำลังตรวจอยู่ แก้เวลาหรือลบไม่ได้จนกว่าจะจบรอบ</div>
+        </div>
+      </div>
+
+      <!-- พนักงาน -->
+      <div id="pUsers" class="hidden">
+        <div class="card">
+          <div class="toolbar" style="justify-content:space-between">
+            <h3 style="margin:0">พนักงานทั้งหมด</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <label class="small" style="margin:0;font-weight:400"><input type="checkbox" id="showInactive" onchange="renderUsers()"> แสดงที่ปิดใช้งาน</label>
+              <button class="btn" onclick="editUser()">+ เพิ่มพนักงาน</button>
+            </div>
+          </div>
+          <div class="scroll" id="userTable"></div>
+          <p class="muted small">พนักงานลาออก ให้กด "ปิดใช้งาน" (ไม่ลบ) เพื่อให้ประวัติการสแกนเดิมยังชี้ตัวคนได้ ทุกการเปลี่ยนแปลงบันทึกไว้ในชีต AuditLog</p>
+        </div>
+      </div>
+
+      <!-- QR / พิกัด -->
+      <div id="pQR" class="hidden">
+        <div class="card noprint">
+          <h3>พิกัดอาคาร (GPS)</h3>
+          <p class="muted small">ใช้ตรวจว่าผู้สแกนอยู่ในบริเวณอาคารหรือไม่ (ไม่บล็อกการทำงาน) วิธีที่ง่ายที่สุด: เปิดหน้านี้บนมือถือขณะยืนกลางอาคาร แล้วกด "ใช้ตำแหน่งปัจจุบัน"</p>
+          <div class="toolbar">
+            <div><label for="gLat">ละติจูด</label><input id="gLat" size="12"></div>
+            <div><label for="gLng">ลองจิจูด</label><input id="gLng" size="12"></div>
+            <div><label for="gRad">รัศมี (ม.)</label><input id="gRad" size="6" type="number" min="50" max="2000"></div>
+            <button class="btn light" onclick="useHere()">ใช้ตำแหน่งปัจจุบัน</button>
+            <button class="btn" onclick="saveGps()">บันทึกพิกัด</button>
+          </div>
+          <div id="gpsMap" class="small" style="margin-top:6px"></div>
+          <div id="gpsMsg"></div>
+        </div>
+        <div class="card">
+          <div class="noprint">
+            <h3>QR Code จุดตรวจ</h3>
+            <div id="qrWarn"></div>
+            <p class="muted small">แก้ชื่อ ชั้น หรือลำดับจุดได้ที่ชีต Checkpoints (คอลัมน์ Seq = ลำดับการเดิน) แล้วกดรีเฟรชหน้านี้ · พิมพ์แล้วเคลือบพลาสติก ติดไว้ที่จุดตรวจ · QR นี้สแกนผ่านปุ่ม "สแกน QR จุดนี้" ในระบบเท่านั้น</p>
+            <button class="btn" onclick="window.print()">พิมพ์ QR ทั้งหมด</button>
+            <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+          </div>
+          <div class="qr-grid" id="qrGrid"></div>
+        </div>
+      </div>
+
+      <!-- จัดเก็บ / ลบ -->
+      <div id="pData" class="hidden">
+        <div class="card"><h3>ข้อมูลในระบบตอนนี้</h3><div id="dataInfo" class="muted">กำลังโหลด...</div></div>
+        <div class="grid2">
+          <div class="card">
+            <h3>ประวัติการ Export</h3>
+            <p class="muted small">ต้อง Export (PDF หรือ Excel) ครอบคลุมช่วงวันที่ก่อน จึงจะลบได้ ทำได้ที่แท็บ "รายงาน"</p>
+            <div class="scroll" id="exHist"></div>
+          </div>
+          <div class="card" style="border:2px solid #fecaca">
+            <h3>ลบข้อมูลที่ Export แล้ว</h3>
+            <div class="toolbar">
+              <div><label for="dFrom">ตั้งแต่วันที่</label><input type="date" id="dFrom"></div>
+              <div><label for="dTo">ถึงวันที่</label><input type="date" id="dTo"></div>
+            </div>
+            <label class="small" style="font-weight:400"><input type="checkbox" id="dPhotos" checked> ลบรูปถ่ายของช่วงนี้ด้วย (คืนพื้นที่ Drive)</label>
+            <p class="small muted">ถ้าลบรูป ลิงก์รูปในไฟล์ Excel จะเปิดไม่ได้ ต้องการเก็บรูป ให้ดาวน์โหลดโฟลเดอร์ Guard Tour › รูปภาพ › ปี-เดือน จาก Drive ก่อน (ข้างในแยกโฟลเดอร์ตามวันที่)</p>
+            <div class="toolbar">
+              <div><label for="dConfirm">พิมพ์คำว่า ยืนยันลบ</label><input id="dConfirm" autocomplete="off"></div>
+              <button class="btn red" id="btnDel" onclick="doDelete()">ลบข้อมูล</button>
+            </div>
+            <div id="delMsg"></div>
+            <h3 style="margin-top:16px">ประวัติการลบ</h3>
+            <div class="scroll" id="delHist"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modal"><div class="box" id="box"></div></div>
+
+<script src="config.js"></script>
+<script>
+  const KEY = 'gt3a';
+  let S = load(), dash = null, users = [], qrLoaded = false, today = '';
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+  function load() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function msg(id, t, cls) { $(id).innerHTML = t ? '<div class="' + (cls || 'err') + '">' + t + '</div>' : ''; }
+  function busy(b, on, t) { b.disabled = on; if (on) { b.dataset.t = b.textContent; b.textContent = t || 'กำลังดำเนินการ...'; } else if (b.dataset.t) b.textContent = b.dataset.t; }
+  function thDate(ymd) {
+    const m = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const p = String(ymd || '').split('-').map(Number);
+    return p.length === 3 && p[0] ? p[2] + ' ' + m[p[1] - 1] + ' ' + (p[0] + 543) : (ymd || '-');
+  }
+  function addDays(ymd, n) { const p = ymd.split('-').map(Number); return new Date(Date.UTC(p[0], p[1] - 1, p[2]) + n * 864e5).toISOString().slice(0, 10); }
+  function isAdmin() { return S.user && S.user.role === 'ADMIN'; }
+
+  // เรียกระบบหลังบ้าน (Apps Script) ผ่านอินเทอร์เน็ต
+  async function api(fn, args, ms) {
+    const url = (window.GT_CONFIG || {}).API_URL || '';
+    if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(url)) throw new Error('ยังไม่ได้ตั้งค่าลิงก์ระบบหลังบ้าน (API_URL ในไฟล์ config.js)');
+    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms || 90000);
+    let res;
+    try { res = await fetch(url, { method: 'POST', body: JSON.stringify({ fn: fn, args: args }), signal: ctl.signal, redirect: 'follow', credentials: 'omit' }); }
+    catch (e) { throw new Error(e && e.name === 'AbortError' ? 'timeout: ระบบตอบช้า ลองใหม่อีกครั้ง' : 'network: สัญญาณอินเทอร์เน็ตขัดข้อง ลองใหม่อีกครั้ง'); }
+    finally { clearTimeout(tm); }
+    if (!res.ok) throw new Error('http ' + res.status + ': ระบบขัดข้องชั่วคราว ลองใหม่อีกครั้ง');
+    let j;
+    try { j = await res.json(); } catch (e) { throw new Error('network: ได้ข้อมูลไม่ครบ ลองใหม่อีกครั้ง'); }
+    if (!j.ok) throw new Error(j.err || 'เกิดข้อผิดพลาด');
+    return j.r;
+  }
+  async function call(fn, ...args) {
+    try { return await api(fn, args, fn === 'exportReport' || fn === 'deleteData' ? 330000 : 90000); }
+    catch (e) {
+      const m = (e && e.message) || String(e);
+      if (m.indexOf('SESSION:') >= 0) { relogin(m.replace(/.*SESSION:\s*/, '')); throw new Error(''); }
+      if (m.indexOf('MUSTCHANGE:') >= 0) { showView('vChange'); throw new Error(''); }
+      throw new Error(m.replace(/^Exception:\s*/, ''));
+    }
+  }
+  function setSite(n) { if (n) document.querySelectorAll('.siteNm').forEach(e => e.textContent = n); }
+
+  function showView(v) { ['vLogin', 'vChange', 'vApp'].forEach(x => $(x).classList.toggle('hidden', x !== v)); }
+
+  async function init() {
+    setSite((window.GT_CONFIG || {}).SITE_NAME);
+    if (!S.token) { showView('vLogin'); api('getSiteInfo', []).then(r => setSite(r.siteName)).catch(() => {}); return; }
+    try { const r = await call('whoAmI', S.token); S.user = r.user; today = r.shiftDate; setSite(r.siteName); save(); afterLogin(); }
+    catch (e) { if (e.message) { showView('vLogin'); msg('loginMsg', esc(e.message)); } }
+  }
+
+  async function doLogin() {
+    const b = $('btnLogin'); busy(b, true, 'กำลังตรวจสอบ...'); msg('loginMsg', '');
+    try {
+      const r = await call('login', $('inUser').value, $('inPw').value, 'admin');
+      busy(b, false);
+      if (!r.ok) { msg('loginMsg', esc(r.msg)); return; }
+      S = { token: r.token, user: r.user }; today = r.shiftDate; setSite(r.siteName); save();
+      $('pOld').value = $('inPw').value; $('inPw').value = '';
+      afterLogin();
+    } catch (e) { busy(b, false); if (e.message) msg('loginMsg', esc(e.message)); }
+  }
+
+  function afterLogin() {
+    $('uname').textContent = S.user.name + ' · ' + S.user.roleTh;
+    $('ubar').classList.remove('hidden');
+    if (S.user.mustChange) { showView('vChange'); return; }
+    showView('vApp');
+    document.querySelectorAll('.tab.admin').forEach(t => t.classList.toggle('hidden', !isAdmin()));
+    if (!$('inDate').value) $('inDate').value = today;
+    if (!$('rFrom').value) { $('rFrom').value = today; $('rTo').value = today; }
+    tab('Dash');
+  }
+
+  async function doChange() {
+    if ($('pNew').value !== $('pNew2').value) { msg('changeMsg', 'PINใหม่ทั้งสองช่องไม่ตรงกัน'); return; }
+    const b = $('btnChange'); busy(b, true, 'กำลังบันทึก...');
+    try {
+      const r = await call('changePin', S.token, $('pOld').value, $('pNew').value);
+      busy(b, false);
+      if (!r.ok) { msg('changeMsg', esc(r.msg)); return; }
+      S.user.mustChange = false; save(); ['pOld', 'pNew', 'pNew2'].forEach(x => $(x).value = '');
+      afterLogin();
+    } catch (e) { busy(b, false); if (e.message) msg('changeMsg', esc(e.message)); }
+  }
+
+  function relogin(t) { S = {}; save(); $('ubar').classList.add('hidden'); showView('vLogin'); msg('loginMsg', esc(t || '')); }
+  async function doLogout() { try { await call('logout', S.token); } catch (e) {} relogin(''); }
+
+  function tab(t) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    ['Dash', 'Report', 'Users', 'Rounds', 'QR', 'Data'].forEach(x => $('p' + x).classList.toggle('hidden', x !== t));
+    if (t === 'Dash') loadDash();
+    if (t === 'Users') loadUsers();
+    if (t === 'Rounds') loadRoundsAdmin();
+    if (t === 'QR') loadQR();
+    if (t === 'Data') loadData();
+  }
+
+  /* ---------- ภาพรวม ---------- */
+  function shiftDay(n) { $('inDate').value = addDays($('inDate').value || today, n); loadDash(); }
+
+  async function loadDash() {
+    msg('dashMsg', '');
+    $('matrix').innerHTML = '<p class="muted">กำลังโหลด...</p>';
+    try {
+      dash = await call('getDashboard', S.token, $('inDate').value);
+      today = dash.today;
+      $('dashTime').textContent = thDate(dash.date) + ' · อัปเดต ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+      const s = dash.summary;
+      $('sOn').textContent = s.onTime; $('sLate').textContent = s.late; $('sMiss').textContent = s.missed;
+      $('sBad').textContent = s.abnormal; $('sOut').textContent = s.outArea; $('sClosed').textContent = s.closed + '/' + dash.rounds.length;
+      renderMatrix();
+    } catch (e) { if (e.message) msg('dashMsg', esc(e.message)); }
+  }
+
+  function statusPill(r) {
+    if (r.status === 'CLOSED') return '<span class="pill p-green">ปิดแล้ว</span>';
+    if (r.status === 'AUTO_CLOSED') return '<span class="pill p-amber">' + esc(r.closeType || 'ปิดอัตโนมัติ') + '</span>';
+    if (r.status === 'IN_PROGRESS') return '<span class="pill p-blue">กำลังตรวจ ' + r.scanned + '/' + r.total + '</span>';
+    return '<span class="pill p-gray">ยังไม่เริ่ม</span>';
+  }
+
+  function roundInfo(no) {
+    const r = dash.rounds.find(x => x.no === no);
+    let h = '<h3>' + esc(r.name || 'รอบ ' + r.no) + ' · ' + esc(r.start) + '–' + esc(r.end) + '</h3><div class="muted small">' + esc(thDate(dash.date)) + ' · ตรงเวลาถึง ' + esc(r.due) + '</div>' +
+      '<p>' + statusPill(r) + '</p><table><tr><th>ตรงเวลา</th><td>' + r.onTime + '</td></tr><tr><th>ช้า</th><td>' + r.late + '</td></tr><tr><th>ขาด</th><td>' + r.missed + '</td></tr>' +
+      '<tr><th>ผิดปกติ</th><td>' + r.abnormal + '</td></tr><tr><th>นอกพื้นที่</th><td>' + r.outArea + '</td></tr>' +
+      '<tr><th>ผู้สแกน</th><td>' + (esc(r.guards.join(', ')) || '-') + '</td></tr>' +
+      (r.closedAt ? '<tr><th>ปิดรอบ</th><td>' + esc(r.closedAt) + ' โดย ' + esc(r.closedBy) + '</td></tr>' : '') + '</table>';
+    if (r.timeChanges.length) {
+      h += '<h3 style="margin-top:14px">เหตุเปลี่ยนเวลาสแกน</h3><table>' + r.timeChanges.map(t => '<tr><td style="white-space:nowrap">' + esc(t.time) + '</td><td>' + esc(t.who) + '<div class="small muted">' + esc(t.type) + '</div></td><td>' + esc(t.reason) + '</td></tr>').join('') + '</table>';
+    }
+    openModal(h + '<button class="btn light big" onclick="closeModal()">ปิด</button>');
+  }
+
+  function renderMatrix() {
+    const rs = dash.rounds;
+    let h = '<table class="mx"><thead><tr><th class="cp">จุดตรวจ</th>' + rs.map(r =>
+      '<th class="rh" onclick="roundInfo(' + r.no + ')" title="กดดูรายละเอียดรอบ">' + esc(r.name || 'รอบ ' + r.no) + '<div class="small muted" style="font-weight:400">' + esc(r.start) + '–' + esc(r.end) + '</div>' +
+      '<div style="margin:4px 0">' + statusPill(r) + '</div>' +
+      '<div class="small" style="font-weight:400">ตรง <b style="color:var(--green)">' + r.onTime + '</b> · ช้า <b style="color:var(--amber)">' + r.late + '</b> · ขาด <b style="color:var(--red)">' + r.missed + '</b></div>' +
+      (r.timeChanges.length ? '<div class="small" style="font-weight:400;color:var(--amber)">เปลี่ยนเวลา ' + r.timeChanges.length + ' ครั้ง</div>' : '') +
+      '</th>').join('') + '</tr></thead><tbody>';
+    dash.checkpoints.forEach(c => {
+      h += '<tr><td class="cp"><b>' + esc(c.seq) + '. ' + esc(c.id) + '</b> ' + esc(c.name) + (c.floor ? ' <span class="muted small">' + esc(c.floor) + '</span>' : '') + '</td>';
+      rs.forEach(r => {
+        const x = (dash.cells[c.id] || {})[String(r.no)];
+        if (!x) {
+          const wait = r.status === 'IN_PROGRESS';
+          h += '<td class="' + (wait ? 'c-wait' : 'c-none') + '">' + (wait ? 'รอ' : '–') + '</td>';
+          return;
+        }
+        let t = '', cls = 'c-' + x.k;
+        let tip = '';
+        if (x.k === 'ok' || x.k === 'late') {
+          t = esc(x.time) + (x.gps === 'นอกพื้นที่' ? '<span class="dot" title="นอกพื้นที่"></span>' : '') + '<span class="nm">' + esc(String(x.guard || '').split(' ')[0]) + '</span>';
+          tip = x.guard + (x.k === 'late' ? ' · ช้า ' + x.lateMin + ' นาที' : '');
+        } else if (x.k === 'missed') { t = 'ขาด'; tip = x.reason || ''; }
+        else if (x.k === 'skip') { t = 'ข้าม'; tip = x.reason || ''; }
+        if (x.cond === 'ผิดปกติ') t += '<span class="flag" style="color:var(--red)">ผิดปกติ</span>';
+        h += '<td class="c ' + cls + '" title="' + esc(tip) + '" onclick="cellInfo(\'' + esc(c.id) + '\',' + r.no + ')">' + t + '</td>';
+      });
+      h += '</tr>';
+    });
+    $('matrix').innerHTML = h + '</tbody></table>';
+  }
+
+  function cellInfo(cpId, no) {
+    const c = dash.checkpoints.find(x => x.id === cpId), x = dash.cells[cpId][String(no)], rr = dash.rounds.find(r => r.no === no) || {};
+    let h = '<h3>' + esc(c.id) + ' ' + esc(c.name) + ' · ' + esc(rr.name || 'รอบ ' + no) + '</h3><div class="muted small">' + esc(thDate(dash.date)) + (c.floor ? ' · ' + esc(c.floor) : '') + '</div>';
+    if (x.k === 'ok' || x.k === 'late') {
+      h += '<table style="margin-top:8px"><tr><th>เวลา</th><td>' + esc(x.time) + ' น. ' + (x.k === 'late' ? '<span class="pill p-amber">ช้า ' + x.lateMin + ' นาที</span>' : '<span class="pill p-green">ตรงเวลา</span>') + '</td></tr>' +
+        '<tr><th>ผู้สแกน</th><td>' + esc(x.guard) + '</td></tr><tr><th>สภาพ</th><td>' + esc(x.cond) + (x.note ? ' — ' + esc(x.note) : '') + '</td></tr>' +
+        '<tr><th>GPS</th><td>' + esc(x.gps || 'ไม่ได้ตั้งพิกัดอาคาร') + (x.dist !== '' && x.dist != null ? ' (ห่างจากอาคาร ' + Number(x.dist).toLocaleString() + ' ม.)' : '') +
+        (x.lat && x.lng ? ' · <a href="https://www.google.com/maps?q=' + encodeURIComponent(x.lat + ',' + x.lng) + '" target="_blank">ดูตำแหน่งที่สแกนบนแผนที่</a>' : '') + '</td></tr></table>';
+      if (x.photo) h += '<div id="cellPhoto" class="muted small">กำลังโหลดรูป...</div>';
+    } else if (x.k === 'missed') h += '<div class="err">ขาด' + (x.reason ? ' — ' + esc(x.reason) : '') + '</div>';
+    else if (x.k === 'skip') h += '<div class="warn">ข้ามไว้โดย ' + esc(x.guard) + ' — ' + esc(x.reason) + '</div>';
+    h += '<button class="btn light big" onclick="closeModal()">ปิด</button>';
+    openModal(h);
+    if (x.photo) call('getPhoto', S.token, x.photo).then(p => {
+      const el = $('cellPhoto'); if (!el) return;
+      if (p.ok) { el.className = ''; el.innerHTML = '<img alt="รูปจุดตรวจ" style="max-width:100%;border-radius:10px">'; el.firstChild.src = p.dataUrl; }
+      else el.textContent = p.msg;
+    }).catch(e => { const el = $('cellPhoto'); if (el && e.message) el.textContent = e.message; });
+  }
+
+  /* ---------- รอบตรวจ (Admin) ---------- */
+  let RA = [], raDayStart = '06:00';
+  function hm2m(t) { const m = String(t || '').match(/^(\d{1,2}):(\d{2})/); return m ? (+m[1] % 24) * 60 + (+m[2]) : null; }
+  function m2hm(m) { m = ((m % 1440) + 1440) % 1440; return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + m % 60).slice(-2); }
+  async function loadRoundsAdmin() {
+    msg('roundMsg', '');
+    $('roundTable').innerHTML = '<tr><td class="muted">กำลังโหลด...</td></tr>';
+    try { applyRoundsAdmin(await call('getRoundsAdmin', S.token)); }
+    catch (e) { if (e.message) msg('roundMsg', esc(e.message)); }
+  }
+  function applyRoundsAdmin(r) {
+    raDayStart = r.dayStart; $('rDayStart').textContent = r.dayStart; $('rGrace').value = r.grace;
+    RA = r.rounds.map(x => ({ no: x.no, start: x.start, end: x.end, busy: x.busy, fromTh: x.fromTh }));
+    renderRoundsAdmin();
+  }
+  function readRoundInputs() {
+    RA.forEach((x, i) => { const s = $('ra_s' + i), e = $('ra_e' + i); if (s) x.start = s.value; if (e) x.end = e.value; });
+  }
+  function renderRoundsAdmin(keep) {
+    if (keep) readRoundInputs();
+    const g = parseInt($('rGrace').value, 10) || 0, ds = hm2m(raDayStart) || 0;
+    const order = RA.map((x, i) => i).sort((a, b) => {
+      const sa = hm2m(RA[a].start), sb = hm2m(RA[b].start);
+      return (sa == null ? 9999 : (sa - ds + 1440) % 1440) - (sb == null ? 9999 : (sb - ds + 1440) % 1440);
+    });
+    $('roundTable').innerHTML = '<thead><tr><th>รอบ</th><th>เริ่ม</th><th>สิ้นสุด</th><th>ตรงเวลาถึง</th><th>สถานะ</th><th></th></tr></thead><tbody>' +
+      order.map((i, k) => {
+        const x = RA[i], e = hm2m(x.end), due = e == null ? '-' : m2hm(e + g);
+        const st = x.busy ? '<span class="pill p-blue">กำลังตรวจอยู่</span>' : !x.no ? '<span class="pill p-green">รอบใหม่</span>' : x.fromTh ? '<span class="pill p-amber">เริ่มนับ ' + esc(x.fromTh) + '</span>' : '';
+        return '<tr><td class="rno">รอบ ' + (k + 1) + '</td>' +
+          '<td><input type="time" id="ra_s' + i + '" value="' + esc(x.start) + '"' + (x.busy ? ' disabled' : '') + ' onchange="renderRoundsAdmin(true)"></td>' +
+          '<td><input type="time" id="ra_e' + i + '" value="' + esc(x.end) + '"' + (x.busy ? ' disabled' : '') + ' onchange="renderRoundsAdmin(true)"></td>' +
+          '<td>' + due + ' น.</td><td>' + st + '</td>' +
+          '<td>' + (x.busy ? '' : '<button class="btn red sm" onclick="delRoundRow(' + i + ')">ลบ</button>') + '</td></tr>';
+      }).join('') + '</tbody>';
+  }
+  function addRoundRow() { readRoundInputs(); RA.push({ no: null, start: '', end: '', busy: false }); renderRoundsAdmin(); msg('roundMsg', 'ใส่เวลาเริ่ม/สิ้นสุดของรอบใหม่ แล้วกด "บันทึกรอบตรวจ"', 'warn'); }
+  function delRoundRow(i) {
+    readRoundInputs();
+    if (RA.length <= 1) return msg('roundMsg', 'ต้องมีอย่างน้อย 1 รอบ');
+    RA.splice(i, 1); renderRoundsAdmin();
+    msg('roundMsg', 'ลบออกจากตารางแล้ว กด "บันทึกรอบตรวจ" เพื่อยืนยัน (หรือ "ยกเลิกการแก้ไข")', 'warn');
+  }
+  async function saveRoundsAdmin() {
+    readRoundInputs();
+    const b = $('btnRounds'); busy(b, true, 'กำลังบันทึก...'); msg('roundMsg', '');
+    try {
+      const r = await call('saveRounds', S.token, RA.map(x => ({ no: x.no, start: x.start, end: x.end })), $('rGrace').value);
+      busy(b, false);
+      if (!r.ok) return msg('roundMsg', esc(r.msg));
+      applyRoundsAdmin(r); msg('roundMsg', esc(r.msg), 'okbox');
+    } catch (e) { busy(b, false); if (e.message) msg('roundMsg', esc(e.message)); }
+  }
+
+  /* ---------- รายงาน ---------- */
+  function quick(k) {
+    const t = today, y = Number(t.slice(0, 4)), m = Number(t.slice(5, 7));
+    if (k === 'today') { $('rFrom').value = t; $('rTo').value = t; }
+    if (k === 'yday') { $('rFrom').value = addDays(t, -1); $('rTo').value = addDays(t, -1); }
+    if (k === 'month') { $('rFrom').value = t.slice(0, 8) + '01'; $('rTo').value = t; }
+    if (k === 'prev') {
+      const py = m === 1 ? y - 1 : y, pm = m === 1 ? 12 : m - 1;
+      $('rFrom').value = py + '-' + String(pm).padStart(2, '0') + '-01';
+      $('rTo').value = new Date(Date.UTC(py, pm, 0)).toISOString().slice(0, 10);
+    }
+  }
+
+  async function doExport(type) {
+    const b = $(type === 'pdf' ? 'btnPdf' : 'btnXlsx');
+    busy(b, true, 'กำลังสร้างไฟล์... (10–60 วินาที)'); msg('repMsg', '');
+    try {
+      const r = await call('exportReport', S.token, $('rFrom').value, $('rTo').value, type);
+      busy(b, false);
+      download(r.base64, r.fileName, r.mime);
+      const s = r.summary;
+      msg('repMsg', 'สร้างไฟล์ <b>' + esc(r.fileName) + '</b> (' + r.sizeKB + ' KB) แล้ว<br>ตรงเวลา ' + s.onTime + ' · ช้า ' + s.late + ' · ขาด ' + s.missed + ' · ตรวจครบ ' + s.rate + '%' +
+        '<br>ถ้าไฟล์ไม่ดาวน์โหลดเอง <a href="' + esc(r.driveUrl) + '" target="_blank">เปิดสำเนาใน Drive</a>', 'okbox');
+    } catch (e) { busy(b, false); if (e.message) msg('repMsg', esc(e.message)); }
+  }
+
+  function download(b64, name, mime) {
+    try {
+      const bin = atob(b64), bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([bytes], { type: mime })); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+    } catch (e) {}
+  }
+
+  /* ---------- พนักงาน ---------- */
+  async function loadUsers() {
+    $('userTable').innerHTML = '<p class="muted">กำลังโหลด...</p>';
+    try { users = (await call('listUsers', S.token)).users; renderUsers(); }
+    catch (e) { if (e.message) $('userTable').innerHTML = '<div class="err">' + esc(e.message) + '</div>'; }
+  }
+  function renderUsers() {
+    const all = $('showInactive').checked;
+    const list = users.filter(u => all || u.status === 'Active');
+    $('userTable').innerHTML = '<table><thead><tr><th>รหัสผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>บทบาท</th><th>สถานะ</th><th>แก้ไขล่าสุด</th><th></th></tr></thead><tbody>' +
+      list.map(u => '<tr><td><b>' + esc(u.username) + '</b><div class="small muted">' + esc(u.id) + '</div></td><td>' + esc(u.name) + '</td><td>' + esc(u.roleTh) + '</td><td>' +
+        (u.status === 'Active' ? '<span class="pill p-green">ใช้งาน</span>' : '<span class="pill p-gray">ปิดใช้งาน</span>') +
+        (u.mustChange ? ' <span class="pill p-amber">รอตั้งรหัสใหม่</span>' : '') + (u.locked ? ' <span class="pill p-red">ถูกล็อก</span>' : '') + '</td><td class="small">' + esc(u.updated) + '</td>' +
+        '<td style="white-space:nowrap"><button class="btn sm light" onclick="editUser(\'' + u.id + '\')">แก้ไข</button> <button class="btn sm light" onclick="resetPin(\'' + u.id + '\')">รีเซ็ตรหัส</button> ' +
+        (u.id === S.user.id ? '' : '<button class="btn sm ' + (u.status === 'Active' ? 'red' : 'green') + '" onclick="toggleUser(\'' + u.id + '\')">' + (u.status === 'Active' ? 'ปิดใช้งาน' : 'เปิดใช้งาน') + '</button>') +
+        '</td></tr>').join('') + '</tbody></table>';
+  }
+  function editUser(id) {
+    const u = users.find(x => x.id === id) || { username: '', name: '', role: 'GUARD' };
+    openModal('<h3>' + (id ? 'แก้ไขพนักงาน' : 'เพิ่มพนักงาน') + '</h3>' +
+      '<label for="eUser">รหัสผู้ใช้ (ใช้เข้าระบบ เช่น g005)</label><input id="eUser" class="full" value="' + esc(u.username) + '">' +
+      '<label for="eName">ชื่อ-นามสกุล</label><input id="eName" class="full" value="' + esc(u.name) + '">' +
+      '<label for="eRole">บทบาท</label><select id="eRole" class="full">' +
+      [['GUARD', 'รปภ.'], ['SUPERVISOR', 'หัวหน้า รปภ.'], ['ADMIN', 'Admin']].map(r => '<option value="' + r[0] + '"' + (u.role === r[0] ? ' selected' : '') + '>' + r[1] + '</option>').join('') + '</select>' +
+      '<div id="eMsg"></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn light" onclick="closeModal()">ยกเลิก</button><button class="btn" id="eBtn" onclick="saveUser(\'' + (id || '') + '\')">บันทึก</button></div>');
+  }
+  async function saveUser(id) {
+    const b = $('eBtn'); busy(b, true, 'กำลังบันทึก...');
+    try {
+      const r = await call('saveUser', S.token, { id: id, username: $('eUser').value, name: $('eName').value, role: $('eRole').value });
+      busy(b, false);
+      if (!r.ok) { msg('eMsg', esc(r.msg)); return; }
+      if (r.tempPin) showPin($('eName').value, $('eUser').value, r.tempPin); else closeModal();
+      loadUsers();
+    } catch (e) { busy(b, false); if (e.message) msg('eMsg', esc(e.message)); }
+  }
+  function showPin(name, user, pin) {
+    openModal('<h3>รหัสชั่วคราวของ ' + esc(name) + '</h3><p>รหัสผู้ใช้: <b>' + esc(user) + '</b></p><p style="font-size:34px;font-weight:700;letter-spacing:6px;margin:8px 0">' + esc(pin) + '</p>' +
+      '<p class="muted small">แจ้งรหัสนี้ให้พนักงานโดยตรง ระบบจะบังคับให้ตั้งรหัสใหม่เมื่อเข้าครั้งแรก รหัสนี้จะไม่แสดงอีก</p><button class="btn big" onclick="closeModal()">รับทราบ</button>');
+  }
+  function ask(title, text, okLabel, okCls, fnName, arg) {
+    openModal('<h3>' + esc(title) + '</h3><p class="muted">' + esc(text) + '</p><div id="aMsg"></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn light" onclick="closeModal()">ยกเลิก</button>' +
+      '<button class="btn ' + okCls + '" id="aBtn" onclick="' + fnName + '(\'' + arg + '\')">' + esc(okLabel) + '</button></div>');
+  }
+  function resetPin(id) {
+    const u = users.find(x => x.id === id);
+    ask('รีเซ็ตรหัสของ ' + u.name + '?', 'ระบบจะสร้างรหัสชั่วคราวใหม่ และพนักงานต้องตั้งรหัสเองเมื่อเข้าครั้งถัดไป', 'รีเซ็ตรหัส', '', 'doResetPin', id);
+  }
+  async function doResetPin(id) {
+    const u = users.find(x => x.id === id); busy($('aBtn'), true, 'กำลังรีเซ็ต...');
+    try { const r = await call('resetUserPin', S.token, id); if (!r.ok) { busy($('aBtn'), false); msg('aMsg', esc(r.msg)); return; } showPin(u.name, u.username, r.tempPin); loadUsers(); }
+    catch (e) { busy($('aBtn'), false); if (e.message) msg('aMsg', esc(e.message)); }
+  }
+  function toggleUser(id) {
+    const u = users.find(x => x.id === id), on = u.status !== 'Active';
+    ask((on ? 'เปิดใช้งาน ' : 'ปิดใช้งาน ') + u.name + '?', on ? 'พนักงานจะเข้าระบบได้อีกครั้ง' : 'พนักงานจะเข้าระบบไม่ได้ทันที ประวัติการสแกนเดิมยังอยู่ครบ', on ? 'เปิดใช้งาน' : 'ปิดใช้งาน', on ? 'green' : 'red', 'doToggleUser', id);
+  }
+  async function doToggleUser(id) {
+    const u = users.find(x => x.id === id), to = u.status === 'Active' ? 'Inactive' : 'Active'; busy($('aBtn'), true, 'กำลังบันทึก...');
+    try { const r = await call('setUserStatus', S.token, id, to); if (!r.ok) { busy($('aBtn'), false); msg('aMsg', esc(r.msg)); return; } closeModal(); loadUsers(); }
+    catch (e) { busy($('aBtn'), false); if (e.message) msg('aMsg', esc(e.message)); }
+  }
+
+  /* ---------- QR / พิกัด ---------- */
+  async function loadQR() {
+    if (qrLoaded) return;
+    $('qrGrid').innerHTML = '<p class="muted">กำลังโหลด...</p>';
+    try {
+      await new Promise((ok, no) => { if (window.QRCode) return ok(); const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; sc.onload = ok; sc.onerror = () => no(new Error('โหลดตัวสร้าง QR ไม่ได้')); document.head.appendChild(sc); });
+      const r = await call('getQRList', S.token);
+      $('gLat').value = r.gps.lat; $('gLng').value = r.gps.lng; $('gRad').value = r.gps.radius || 200; showGpsMap();
+      $('qrWarn').innerHTML = '';
+      $('qrGrid').innerHTML = r.items.map((it, i) => '<div class="qr-card"><div class="small muted">ลำดับ ' + esc(it.seq) + '</div><div class="qr-title">' + esc(it.name) + '</div>' +
+        '<div class="small muted">' + esc(it.floor) + '</div><div class="qr" id="qr' + i + '"></div><b>' + esc(it.id) + '</b><div class="small muted">Guard Tour · สแกนเพื่อบันทึกการตรวจ</div></div>').join('');
+      r.items.forEach((it, i) => new QRCode($('qr' + i), { text: it.id, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M }));
+      qrLoaded = true;
+    } catch (e) { if (e.message) $('qrGrid').innerHTML = '<div class="err">' + esc(e.message) + '</div>'; }
+  }
+  function showGpsMap() {
+    const la = $('gLat').value.trim(), ln = $('gLng').value.trim();
+    $('gpsMap').innerHTML = la && ln ? 'พิกัดอาคารตอนนี้: <a href="https://www.google.com/maps?q=' + encodeURIComponent(la + ',' + ln) + '" target="_blank">ดูบนแผนที่ว่าตรงกับอาคารหรือไม่</a>' : 'ยังไม่ได้ตั้งพิกัดอาคาร';
+  }
+  function useHere() {
+    if (!navigator.geolocation) { msg('gpsMsg', 'อุปกรณ์นี้ไม่รองรับ GPS'); return; }
+    msg('gpsMsg', 'กำลังหาตำแหน่ง...', 'warn');
+    navigator.geolocation.getCurrentPosition(p => {
+      $('gLat').value = p.coords.latitude.toFixed(6); $('gLng').value = p.coords.longitude.toFixed(6); showGpsMap();
+      const acc = Math.round(p.coords.accuracy);
+      if (acc > 100) msg('gpsMsg', 'ตำแหน่งนี้คลาดเคลื่อนถึง ' + acc.toLocaleString() + ' ม. (มักเกิดเมื่อใช้ PC) ไม่ควรบันทึก ให้เปิดหน้านี้บนมือถือขณะยืนในอาคารแล้วลองใหม่');
+      else msg('gpsMsg', 'ได้ตำแหน่งแล้ว (คลาดเคลื่อนประมาณ ' + acc + ' ม.) กด "บันทึกพิกัด" เพื่อใช้งาน', 'okbox');
+    }, () => msg('gpsMsg', 'หาตำแหน่งไม่ได้ ลองอนุญาตการเข้าถึงตำแหน่ง หรือกรอกพิกัดเอง'), { enableHighAccuracy: true, timeout: 15000 });
+  }
+  async function saveGps() {
+    try {
+      const r = await call('saveBuildingGps', S.token, $('gLat').value, $('gLng').value, $('gRad').value);
+      msg('gpsMsg', r.ok ? 'บันทึกพิกัดอาคารแล้ว' : esc(r.msg), r.ok ? 'okbox' : 'err');
+    } catch (e) { if (e.message) msg('gpsMsg', esc(e.message)); }
+  }
+
+  /* ---------- จัดเก็บ / ลบ ---------- */
+  let dataDefaults = false;
+  function histTable(head, rows) {
+    if (!rows.length) return '<p class="muted small">ยังไม่มีประวัติ</p>';
+    return '<table><thead><tr>' + head.map(h => '<th>' + h + '</th>').join('') + '</tr></thead><tbody>' + rows.map(r => '<tr>' + r.map(c => '<td>' + c + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
+  }
+  async function loadData() {
+    try {
+      const r = await call('getDataInfo', S.token);
+      if (!dataDefaults) { $('dFrom').value = r.prevFrom; $('dTo').value = r.prevTo; dataDefaults = true; }
+      const pct = r.driveLimitMB ? Math.round(r.driveUsedMB / r.driveLimitMB * 1000) / 10 : 0;
+      $('dataInfo').innerHTML = '<div class="stats" style="margin:0">' +
+        '<div class="stat"><div class="n">' + r.rows.toLocaleString() + '</div><div class="l">บันทึกการสแกน</div></div>' +
+        '<div class="stat"><div class="n" style="font-size:20px">' + (r.minDate ? thDate(r.minDate) : '-') + '</div><div class="l">ข้อมูลเก่าสุด</div></div>' +
+        '<div class="stat"><div class="n" style="font-size:20px">' + (r.maxDate ? thDate(r.maxDate) : '-') + '</div><div class="l">ข้อมูลล่าสุด</div></div>' +
+        '<div class="stat"><div class="n">' + r.photos.toLocaleString() + '</div><div class="l">รูป (~' + Math.round(r.photos * 20 / 1024) + ' MB)</div></div>' +
+        (r.driveLimitMB ? '<div class="stat"><div class="n">' + pct + '%</div><div class="l">พื้นที่ Drive (' + (r.driveUsedMB / 1024).toFixed(1) + ' / ' + (r.driveLimitMB / 1024).toFixed(0) + ' GB)</div></div>' : '') + '</div>';
+      $('exHist').innerHTML = histTable(['เมื่อ', 'ช่วงวันที่', 'ชนิด', 'ไฟล์', 'โดย'], r.exports.map(e => [esc(e.at), esc(thDate(e.from) + ' – ' + thDate(e.to)), esc(e.type), '<a href="' + esc(e.url) + '" target="_blank">' + esc(e.file) + '</a>', esc(e.by)]));
+      $('delHist').innerHTML = histTable(['ลบเมื่อ', 'ช่วงวันที่', 'แถว', 'รูป', 'โดย', 'หมายเหตุ'], r.deletes.map(d => [esc(d.at), esc(thDate(d.from) + ' – ' + thDate(d.to)), esc(d.rows), esc(d.photos), esc(d.by), esc(d.note)]));
+    } catch (e) { if (e.message) $('dataInfo').innerHTML = '<div class="err">' + esc(e.message) + '</div>'; }
+  }
+  async function doDelete() {
+    if ($('dConfirm').value.trim() !== 'ยืนยันลบ') { msg('delMsg', 'กรุณาพิมพ์คำว่า "ยืนยันลบ" ก่อน'); return; }
+    const b = $('btnDel'), withPhotos = $('dPhotos').checked; busy(b, true, 'กำลังลบ...'); msg('delMsg', '');
+    try {
+      const r = await call('deleteData', S.token, $('dFrom').value, $('dTo').value, withPhotos, $('dConfirm').value);
+      busy(b, false); $('dConfirm').value = '';
+      msg('delMsg', 'ลบข้อมูลแล้ว ' + r.removed + ' แถว' + (withPhotos ? ' · ลบรูป ' + r.photosDeleted + ' รูป (อยู่ในถังขยะ Drive 30 วัน)' : ' · เก็บรูปไว้') +
+        (r.photosLeft ? '<br>ลบรูปไม่ทัน ' + r.photosLeft + ' รูป ลบโฟลเดอร์เดือนนั้นใน Drive เองได้' : ''), 'okbox');
+      loadData();
+    } catch (e) { busy(b, false); if (e.message) msg('delMsg', esc(e.message)); }
+  }
+
+  /* ---------- modal ---------- */
+  function openModal(h) { $('box').innerHTML = h; $('modal').classList.remove('hidden'); }
+  function closeModal() { $('modal').classList.add('hidden'); }
+  $('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+  $('inPw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+  init();
+</script>
+</body>
+</html>
