@@ -84,8 +84,8 @@
 </head>
 <body>
   <header>
-    <div><b>Guard Tour · ผู้ดูแล</b> <span style="font-size:11px;opacity:.7">v5.0</span><small class="siteNm"></small></div>
-    <div id="ubar" class="ubar hidden"><span id="uname"></span><button onclick="doLogout()">ออกจากระบบ</button></div>
+    <div><b>Guard Tour · ผู้ดูแล</b> <span style="font-size:11px;opacity:.7">v5.1</span><small class="siteNm"></small></div>
+    <div id="ubar" class="ubar hidden"><span id="uname"></span><button id="btnToScan" class="hidden" onclick="goScan()">📱 หน้าสแกน</button><button onclick="doLogout()">ออกจากระบบ</button></div>
   </header>
 
   <div class="wrap">
@@ -335,6 +335,7 @@
   function afterLogin() {
     $('uname').textContent = S.user.name + ' · ' + S.user.roleTh;
     $('ubar').classList.remove('hidden');
+    $('btnToScan').classList.toggle('hidden', S.user.role !== 'SUPERVISOR');
     if (S.user.mustChange) { showView('vChange'); return; }
     showView('vApp');
     document.querySelectorAll('.tab.admin').forEach(t => t.classList.toggle('hidden', !isAdmin()));
@@ -356,7 +357,12 @@
   }
 
   function relogin(t) { S = {}; save(); $('ubar').classList.add('hidden'); showView('vLogin'); msg('loginMsg', esc(t || '')); }
-  async function doLogout() { try { await call('logout', S.token); } catch (e) {} relogin(''); }
+  async function doLogout() { try { await call('logout', S.token); } catch (e) {} try { localStorage.removeItem('gt3'); } catch (e) {} relogin(''); location.href = './'; }
+  // หัวหน้า รปภ. กลับไปหน้าสแกน โดยใช้การเข้าระบบเดิม
+  function goScan() {
+    try { const m = JSON.parse(localStorage.getItem('gt3') || '{}'); localStorage.setItem('gt3', JSON.stringify({ token: S.token, user: S.user, run: m.token === S.token ? m.run : null, mode: 'scan' })); } catch (e) { }
+    location.href = './';
+  }
 
   function tab(t) {
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === t));

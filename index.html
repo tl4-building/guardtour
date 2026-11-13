@@ -75,7 +75,7 @@
 </head>
 <body>
   <header><div class="hw">
-    <div><b>Guard Tour</b> <span style="font-size:11px;opacity:.7">v5.0</span><small class="siteNm"></small></div>
+    <div><b>Guard Tour</b> <span style="font-size:11px;opacity:.7">v5.1</span><small class="siteNm"></small></div>
     <div id="ub" class="ub hidden"><span id="uname"></span><br><button onclick="doLogout()">ออกจากระบบ</button></div>
   </div></header>
 
@@ -104,8 +104,15 @@
       <div id="changeMsg"></div>
     </div>
 
+    <div id="vChoose" class="hidden">
+      <div class="card"><h2>เลือกงาน</h2><div class="mu sm">บัญชีหัวหน้า รปภ. ใช้ได้ทั้งสแกนจุดตรวจและดูรายงาน</div></div>
+      <button class="btn pri" onclick="chooseScan()">📷 สแกนจุดตรวจ</button>
+      <button class="btn lt" onclick="goAdmin()">📊 ดูรายงาน / ภาพรวม</button>
+    </div>
+
     <div id="vRounds" class="hidden">
-      <div class="card"><h2>เลือกรอบ</h2><div class="mu sm" id="shiftInfo"></div></div>
+      <div class="card"><h2>เลือกรอบ</h2><div class="mu sm" id="shiftInfo"></div>
+        <button class="btn lt hidden" id="btnToAdmin" style="margin-top:10px" onclick="goAdmin()">📊 ดูรายงาน / ภาพรวม</button></div>
       <div id="roundList"></div>
     </div>
 
@@ -194,7 +201,7 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   function load() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
-  const VIEWS = ['vLoad', 'vLogin', 'vChange', 'vRounds', 'vRun', 'vPhoto', 'vSave'];
+  const VIEWS = ['vLoad', 'vLogin', 'vChange', 'vChoose', 'vRounds', 'vRun', 'vPhoto', 'vSave'];
   function show(v) { VIEWS.forEach(x => $(x).classList.toggle('hidden', x !== v)); window.scrollTo(0, 0); }
   function msg(id, t, cls) { $(id).innerHTML = t ? '<div class="' + (cls || 'err') + '">' + esc(t) + '</div>' : ''; }
   function toast(t) { const e = $('toast'); e.textContent = t; e.classList.remove('hidden'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.add('hidden'), 2500); }
@@ -241,13 +248,19 @@
     if (r.user.mustChange) return showChange();
     if (r.state) { st = r.state; Q.filter(q => q.shiftDate === st.shiftDate && q.roundNo === st.roundNo).forEach(q => advance(q.cpId)); renderRun(st); pump(); if (CP_URL) gotCode(CP_URL); return; }
     if (r.runClosed) { S.run = null; save(); }
+    lastRounds = r.rounds;
+    if (r.user.role !== 'GUARD' && S.mode !== 'scan') { show('vChoose'); pump(); return; }
     renderRounds(r.rounds); pump();
     if (CP_URL) toast('กรุณาเลือกรอบก่อนสแกน');
   }
   async function doLogin() {
     const b = $('btnLogin'); msg('loginMsg', ''); busy(b, true, 'กำลังตรวจสอบ...');
     try {
-      const r = await call('login', $('inUser').value, $('inPin').value, 'mobile');
+      let r = await call('login', $('inUser').value, $('inPin').value, 'mobile');
+      if (!r.ok && /Admin/.test(r.msg || '')) {                 // บัญชี Admin → เข้าหน้าผู้ดูแล
+        r = await call('login', $('inUser').value, $('inPin').value, 'admin');
+        if (r.ok) { $('inPin').value = ''; return goAdmin(r.token, r.user); }
+      }
       if (!r.ok) { busy(b, false); return msg('loginMsg', r.msg); }
       S = { token: r.token, run: null }; save();
       $('pOld').value = $('inPin').value; $('inPin').value = '';
@@ -269,7 +282,14 @@
       applyBoot(await call('boot', S.token, null)); busy(b, false); toast('ตั้งรหัสใหม่แล้ว');
     } catch (e) { busy(b, false); if (e.message) msg('changeMsg', e.message); }
   }
-  function relogin(t) { S = {}; save(); $('ub').classList.add('hidden'); closeModal(); show('vLogin'); msg('loginMsg', t || ''); }
+  let lastRounds = null;
+  function chooseScan() { S.mode = 'scan'; save(); if (lastRounds) renderRounds(lastRounds); else loadRounds(); }
+  // ไปหน้ารายงาน/ผู้ดูแล โดยใช้การเข้าระบบเดิม (ไม่ต้องใส่รหัสซ้ำ)
+  function goAdmin(token, user) {
+    try { localStorage.setItem('gt3a', JSON.stringify({ token: token || S.token, user: user || S.user })); } catch (e) { }
+    location.href = 'admin.html';
+  }
+  function relogin(t) { try { localStorage.removeItem('gt3a'); } catch (e) { } S = {}; save(); $('ub').classList.add('hidden'); closeModal(); show('vLogin'); msg('loginMsg', t || ''); }
   function doLogout() {
     if (Q.length) return openModal('<h3>ยังส่งข้อมูลไม่ครบ</h3><p class="mu">เหลือ ' + Q.length + ' รายการ รอให้ส่งเสร็จก่อนออกจากระบบ</p><button class="btn pri" onclick="closeModal()">ตกลง</button>');
     openModal('<h3>ออกจากระบบ?</h3><div class="row"><button class="btn lt" onclick="closeModal()">ยกเลิก</button><button class="btn dg" onclick="logoutNow()">ออกจากระบบ</button></div>');
@@ -286,6 +306,7 @@
     offset = r.serverTime - Date.now();
     show('vRounds');
     $('shiftInfo').textContent = 'วันทำงาน ' + r.shiftDateTh + ' · ' + r.total + ' จุด';
+    $('btnToAdmin').classList.toggle('hidden', !S.user || S.user.role === 'GUARD');
     const TS = { upcoming: ['ยังไม่ถึงเวลา', 'p0'], now: ['ถึงเวลาแล้ว', 'p2'], grace: ['ผ่อนผันถึง ', 'p2'], over: ['เลยเวลา', 'p3'] };
     $('roundList').innerHTML = r.rounds.map(x => {
       const closed = x.status === 'CLOSED' || x.status === 'AUTO_CLOSED';
