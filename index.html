@@ -75,7 +75,7 @@
 </head>
 <body>
   <header><div class="hw">
-    <div><b>Guard Tour</b> <span style="font-size:11px;opacity:.7">v5.1</span><small class="siteNm"></small></div>
+    <div><b>Guard Tour</b> <span style="font-size:11px;opacity:.7">v5.2</span><small class="siteNm"></small></div>
     <div id="ub" class="ub hidden"><span id="uname"></span><br><button onclick="doLogout()">ออกจากระบบ</button></div>
   </div></header>
 
@@ -88,7 +88,7 @@
       <label class="f" for="inUser">รหัสพนักงาน</label>
       <input id="inUser" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false">
       <label class="f" for="inPin">PIN</label>
-      <input id="inPin" type="text" class="mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="numeric">
+      <div style="position:relative"><input id="inPin" type="text" class="mask" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="numeric" style="padding-right:64px"><button type="button" id="kbBtn" onclick="toggleKb()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:#e2e8f0;border-radius:8px;padding:6px 10px;font-family:inherit;font-size:14px">ABC</button></div>
       <button class="btn pri" id="btnLogin" onclick="doLogin()">เริ่มใช้งาน</button>
       <div id="loginMsg"></div>
       <div class="mu sm" style="margin-top:10px">ระบบภายในสำหรับพนักงานรักษาความปลอดภัย <b class="siteNm"></b> เท่านั้น · ใช้รหัสพนักงานและ PIN ที่ได้รับจากหัวหน้า · <b>ห้ามกรอกรหัสบัญชี Google อีเมล หรือบัญชีธนาคาร</b></div>
@@ -268,7 +268,7 @@
     } catch (e) { busy(b, false); if (e.message) msg('loginMsg', e.message); }
   }
   function showChange() {
-    if (S.user && S.user.role !== 'GUARD') $('chHint').textContent = 'รหัสอย่างน้อย 8 ตัว มีทั้งตัวอักษรและตัวเลข';
+    if (S.user && S.user.role !== 'GUARD') $('chHint').textContent = 'รหัสอย่างน้อย 8 ตัว (ตัวเลขล้วนได้ ห้ามเลขเรียง/เลขซ้ำ)';
     else ['pOld', 'pNew', 'pNew2'].forEach(x => $(x).setAttribute('inputmode', 'numeric'));
     show('vChange');
   }
@@ -283,6 +283,12 @@
     } catch (e) { busy(b, false); if (e.message) msg('changeMsg', e.message); }
   }
   let lastRounds = null;
+  // สลับแป้นพิมพ์ช่อง PIN: ตัวเลข ↔ ตัวอักษร (สำหรับรหัสที่มีตัวอักษร)
+  function toggleKb() {
+    const i = $('inPin'), num = i.getAttribute('inputmode') === 'numeric';
+    i.setAttribute('inputmode', num ? 'text' : 'numeric'); $('kbBtn').textContent = num ? '123' : 'ABC';
+    i.blur(); setTimeout(() => i.focus(), 50);
+  }
   function chooseScan() { S.mode = 'scan'; save(); if (lastRounds) renderRounds(lastRounds); else loadRounds(); }
   // ไปหน้ารายงาน/ผู้ดูแล โดยใช้การเข้าระบบเดิม (ไม่ต้องใส่รหัสซ้ำ)
   function goAdmin(token, user) {
