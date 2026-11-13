@@ -4,6 +4,6 @@
  * SITE_NAME: ชื่ออาคารที่แสดงบนหน้าจอ
  */
 window.GT_CONFIG = {
-  API_URL: 'วางลิงก์ที่ได้จาก Apps Script ตรงนี้',
+  API_URL: 'https://script.google.com/macros/s/AKfycbxyUnsAHPoXOlFnt7HYIgAl3lqYDGg46tMyOO5jMZwnIAXkC6fjdpyn0E3jkqLlBBry/exec',
   SITE_NAME: 'สำนักงานอาคารไทยประกันชีวิต 4'
 };
