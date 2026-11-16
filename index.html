@@ -75,7 +75,7 @@
 </head>
 <body>
   <header><div class="hw">
-    <div><b>Guard Tour</b> <span style="font-size:11px;opacity:.7">v5.2</span><small class="siteNm"></small></div>
+    <div><b>Guard Tour</b> <span style="font-size:11px;opacity:.7">v5.4</span><small class="siteNm"></small></div>
     <div id="ub" class="ub hidden"><span id="uname"></span><br><button onclick="doLogout()">ออกจากระบบ</button></div>
   </div></header>
 
@@ -195,6 +195,7 @@
   function setSite(n) { if (n) document.querySelectorAll('.siteNm').forEach(e => e.textContent = n); }
   setSite((window.GT_CONFIG || {}).SITE_NAME);
   const KEY = 'gt3', PHOTO_MAX = 480, PHOTO_Q = 0.6;
+  let shotAt = 0;
   let S = load(), offset = 0, st = null, mode = '', cp = null, photo = '', cond = 'ปกติ', geo = null;
 
   const $ = id => document.getElementById(id);
@@ -246,7 +247,8 @@
     S.user = r.user; save(); offset = r.serverTime - Date.now(); setSite(r.siteName);
     $('uname').textContent = r.user.name + ' · ' + r.user.roleTh; $('ub').classList.remove('hidden');
     if (r.user.mustChange) return showChange();
-    if (r.state) { st = r.state; Q.filter(q => q.shiftDate === st.shiftDate && q.roundNo === st.roundNo).forEach(q => advance(q.cpId)); renderRun(st); pump(); if (CP_URL) gotCode(CP_URL); return; }
+    warnOthers();
+    if (r.state) { st = r.state; mine().filter(q => q.shiftDate === st.shiftDate && q.roundNo === st.roundNo).forEach(q => advance(q.cpId)); renderRun(st); pump(); if (CP_URL) gotCode(CP_URL); return; }
     if (r.runClosed) { S.run = null; save(); }
     lastRounds = r.rounds;
     if (r.user.role !== 'GUARD' && S.mode !== 'scan') { show('vChoose'); pump(); return; }
@@ -297,7 +299,7 @@
   }
   function relogin(t) { try { localStorage.removeItem('gt3a'); } catch (e) { } S = {}; save(); $('ub').classList.add('hidden'); closeModal(); show('vLogin'); msg('loginMsg', t || ''); }
   function doLogout() {
-    if (Q.length) return openModal('<h3>ยังส่งข้อมูลไม่ครบ</h3><p class="mu">เหลือ ' + Q.length + ' รายการ รอให้ส่งเสร็จก่อนออกจากระบบ</p><button class="btn pri" onclick="closeModal()">ตกลง</button>');
+    if (mine().length) return openModal('<h3>ยังส่งข้อมูลไม่ครบ</h3><p class="mu">เหลือ ' + mine().length + ' รายการ รอให้ส่งเสร็จก่อนออกจากระบบ</p><button class="btn pri" onclick="closeModal()">ตกลง</button>');
     openModal('<h3>ออกจากระบบ?</h3><div class="row"><button class="btn lt" onclick="closeModal()">ยกเลิก</button><button class="btn dg" onclick="logoutNow()">ออกจากระบบ</button></div>');
   }
   function logoutNow() { const t = S.token; relogin(''); call('logout', t).catch(() => {}); }
@@ -592,7 +594,8 @@
     const w = Math.round(W * sc), h = Math.round(H * sc), c = $('work'), x = c.getContext('2d');
     c.width = w; c.height = h; x.drawImage(img, 0, 0, w, h);
     const lit = brightenIfDark(x, w, h);
-    const dt = new Date(Date.now() + offset).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    shotAt = Date.now() + offset;
+    const dt = new Date(shotAt).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
     const fs = Math.max(12, Math.round(w / 32));
     x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(0, h - fs * 2.9, w, fs * 2.9); x.fillStyle = '#fff';
     x.font = 'bold ' + fs + 'px sans-serif'; x.fillText(cp.id + ' ' + cp.name + ' · รอบ ' + (st.roundLabel || st.roundNo), fs * .6, h - fs * 1.65, w - fs * 1.2);
@@ -613,8 +616,8 @@
     if (document.activeElement) document.activeElement.blur();
     const note = $('inNote').value.trim();
     if (cond === 'ผิดปกติ' && !note) return msg('saveMsg', 'กรุณาระบุรายละเอียดเหตุผิดปกติ');
-    enqueue({ shiftDate: st.shiftDate, roundNo: st.roundNo, cpId: cp.id, cpName: cp.name, condition: cond, note: note, photo: photo, lat: geo ? geo.lat : '', lng: geo ? geo.lng : '' });
-    photo = '';
+    enqueue({ by: S.user.id, byName: S.user.name, at: shotAt || (Date.now() + offset), shiftDate: st.shiftDate, roundNo: st.roundNo, cpId: cp.id, cpName: cp.name, condition: cond, note: note, photo: photo, lat: geo ? geo.lat : '', lng: geo ? geo.lng : '' });
+    photo = ''; shotAt = 0;
     advance(cp.id);
     toast('บันทึก ' + cp.id + ' แล้ว');
     renderRun(st);
@@ -631,39 +634,60 @@
 
   /* ---------- คิวส่งข้อมูลเบื้องหลัง (เก็บในเครื่อง ไม่หายแม้ปิดแอป) ---------- */
   const QKEY = 'gt3q';
-  let Q = (() => { try { return JSON.parse(localStorage.getItem(QKEY) || '[]'); } catch (e) { return []; } })();
+  // คิวเก็บใน localStorage ซึ่งใช้ร่วมกันทุกหน้าต่างของแอปในเครื่องเดียวกัน → อ่านใหม่ทุกครั้งก่อนแก้ และมีรหัสประจำรายการ
+  const qid = x => (x.by || '') + '|' + x.shiftDate + '|' + x.roundNo + '|' + x.cpId;
+  function loadQ() { try { const a = JSON.parse(localStorage.getItem(QKEY) || '[]'); a.forEach(x => { if (!x.qid) x.qid = qid(x); }); return a; } catch (e) { return []; } }
+  let Q = loadQ();
+  window.addEventListener('storage', e => { if (e.key === QKEY) { Q = loadQ(); updQ(); } });
   let qBusy = false, waiters = [];
   function saveQ() { try { localStorage.setItem(QKEY, JSON.stringify(Q)); } catch (e) {} }
-  function updQ() { const n = Q.length; $('qInfo').textContent = n ? 'กำลังส่งข้อมูล ' + n + ' รายการ...' : ''; }
-  function enqueue(it) { Q.push(it); saveQ(); updQ(); pump(); }
-  function drain() { return new Promise(ok => { if (!Q.length && !qBusy) return ok(); waiters.push(ok); pump(); }); }
+  // คิวแยกตามเจ้าของ: ส่งเฉพาะรายการของคนที่เข้าระบบอยู่ ห้ามส่งของคนอื่นด้วยชื่อตัวเอง
+  function mine() { const id = S.user && S.user.id; return Q.filter(x => !x.by || x.by === id); }
+  function others() { const id = S.user && S.user.id; return Q.filter(x => x.by && x.by !== id); }
+  function updQ() {
+    const n = mine().length, o = others(), names = [...new Set(o.map(x => x.byName))].join(', ');
+    $('qInfo').textContent = (n ? 'กำลังส่งข้อมูล ' + n + ' รายการ... ' : '') + (o.length ? 'มีข้อมูลค้างของ ' + names + ' ' + o.length + ' รายการ (ให้เจ้าของเข้าระบบในเครื่องนี้เพื่อส่ง)' : '');
+  }
+  function warnOthers() {
+    const o = others(); if (!o.length) return;
+    const names = [...new Set(o.map(x => x.byName))].join(', ');
+    openModal('<h3>มีข้อมูลที่ยังไม่ได้ส่ง</h3><p>เครื่องนี้มีข้อมูลสแกนของ <b>' + esc(names) + '</b> ค้างอยู่ ' + o.length + ' รายการ</p><div class="err">ระบบจะไม่ส่งด้วยชื่อของคุณ ให้ ' + esc(names) + ' เข้าระบบในเครื่องนี้เพื่อส่งข้อมูล แล้วค่อยออกจากระบบ</div><button class="btn pri" onclick="closeModal()">ตกลง</button>');
+  }
+  function enqueue(it) { it.qid = qid(it); Q = loadQ().filter(x => x.qid !== it.qid); Q.push(it); saveQ(); updQ(); pump(); }
+  function drain() { return new Promise(ok => { Q = loadQ(); if (!mine().length && !qBusy) return ok(); waiters.push(ok); pump(); }); }
   async function pump() {
-    if (qBusy || !S.token) return;
+    if (qBusy || !S.token || !S.user) return;
     qBusy = true;
-    while (Q.length) {
-      const it = Q[0];
+    try {
+      // ล็อกข้ามหน้าต่าง: ถ้าเปิดแอปซ้อน 2 หน้าต่าง จะไม่ส่งรายการเดียวกันพร้อมกัน
+      if (navigator.locks && navigator.locks.request) await navigator.locks.request('gt3-pump', sendAll);
+      else await sendAll();
+    } catch (e) { }
+    qBusy = false; Q = loadQ(); updQ();
+    if (!mine().length) waiters.splice(0).forEach(f => f());
+  }
+  async function sendAll() {
+    let it;
+    while (S.token && (Q = loadQ(), it = mine()[0])) {
       let r;
       try { r = await call('submitScan', S.token, it); }
       catch (e) {
-        qBusy = false; updQ();
         if (!e.message) return;                                   // ต้องเข้าระบบใหม่ ส่งต่อหลังเข้าระบบ
         if (/network|http|timed? ?out|connection|เครือข่าย/i.test(e.message)) { setTimeout(pump, 5000); return; }  // สัญญาณหลุด ลองใหม่
         r = { ok: false, msg: e.message };
-        qBusy = true;
       }
-      Q.shift(); saveQ(); updQ();
+      Q = loadQ().filter(x => x.qid !== it.qid); saveQ(); updQ();
+      if (r.me && S.user && r.me.id === S.user.id) { S.user.name = r.me.name; save(); }
       if (!r.ok) {
         openModal('<h3>บันทึก ' + esc(it.cpId) + ' ไม่สำเร็จ</h3><div class="err">' + esc(r.msg) + '</div><p class="mu sm">กรุณาสแกนจุดนี้ใหม่</p><button class="btn pri" onclick="closeModal()">ตกลง</button>');
-        Q = Q.filter(x => !(x.shiftDate === it.shiftDate && x.roundNo === it.roundNo)); saveQ(); updQ();
+        Q = loadQ().filter(x => !(x.shiftDate === it.shiftDate && x.roundNo === it.roundNo && (x.by || '') === (it.by || ''))); saveQ(); updQ();
         if (st && st.shiftDate === it.shiftDate && st.roundNo === it.roundNo) {
           try { st = await call('getRunState', S.token, it.shiftDate, it.roundNo); if (!$('vRun').classList.contains('hidden')) renderRun(st); } catch (e) {}
         }
-      } else if (!Q.length && st && st.shiftDate === r.shiftDate && st.roundNo === r.roundNo) {
+      } else if (!mine().length && st && st.shiftDate === r.shiftDate && st.roundNo === r.roundNo) {
         st = r; if (!$('vRun').classList.contains('hidden')) renderRun(st);
       }
     }
-    qBusy = false; updQ();
-    waiters.splice(0).forEach(f => f());
   }
 
   $('inPin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });

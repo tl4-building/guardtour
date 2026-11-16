@@ -84,7 +84,7 @@
 </head>
 <body>
   <header>
-    <div><b>Guard Tour · ผู้ดูแล</b> <span style="font-size:11px;opacity:.7">v5.2</span><small class="siteNm"></small></div>
+    <div><b>Guard Tour · ผู้ดูแล</b> <span style="font-size:11px;opacity:.7">v5.4</span><small class="siteNm"></small></div>
     <div id="ubar" class="ubar hidden"><span id="uname"></span><button id="btnToScan" class="hidden" onclick="goScan()">📱 หน้าสแกน</button><button onclick="doLogout()">ออกจากระบบ</button></div>
   </header>
 
@@ -377,18 +377,24 @@
   /* ---------- ภาพรวม ---------- */
   function shiftDay(n) { $('inDate').value = addDays($('inDate').value || today, n); loadDash(); }
 
+  // กันข้อมูลสลับวัน: ถ้ากดเปลี่ยนวันเร็วๆ คำตอบที่มาช้าของวันเก่าจะถูกทิ้ง
+  let dashSeq = 0;
   async function loadDash() {
+    const my = ++dashSeq, want = $('inDate').value;
     msg('dashMsg', '');
     $('matrix').innerHTML = '<p class="muted">กำลังโหลด...</p>';
     try {
-      dash = await call('getDashboard', S.token, $('inDate').value);
+      const d = await call('getDashboard', S.token, want);
+      if (my !== dashSeq) return;
+      dash = d;
+      if (dash.date && $('inDate').value !== dash.date) $('inDate').value = dash.date;
       today = dash.today;
       $('dashTime').textContent = thDate(dash.date) + ' · อัปเดต ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
       const s = dash.summary;
       $('sOn').textContent = s.onTime; $('sLate').textContent = s.late; $('sMiss').textContent = s.missed;
       $('sBad').textContent = s.abnormal; $('sOut').textContent = s.outArea; $('sClosed').textContent = s.closed + '/' + dash.rounds.length;
       renderMatrix();
-    } catch (e) { if (e.message) msg('dashMsg', esc(e.message)); }
+    } catch (e) { if (my === dashSeq && e.message) msg('dashMsg', esc(e.message)); }
   }
 
   function statusPill(r) {
